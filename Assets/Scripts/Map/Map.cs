@@ -35,23 +35,22 @@ public class Map : MonoBehaviour {
 				Color color = mapImage.GetPixel (x, y);
 				Tile tile = new Tile ();
 
-				// TODO: Current comparision is very inaccurate.
-				if (CompareColors.Compare (color, stoneWallColor, 5.0f)) {
+				if (color == stoneWallColor) {
 					tile.textureIndex = 2;
 					tile.passable = false;
 					tile.destructable = false;
 
-				} else if (CompareColors.Compare (color, stoneFloorColor, 5.0f)) {
+				} else if (color == stoneFloorColor) {
 					tile.textureIndex = 3;
 					tile.passable = true;
 					tile.destructable = false;
 
-				} else if (CompareColors.Compare (color, woodWallColor, 5.0f)) {
+				} else if (color == woodWallColor) {
 					tile.textureIndex = 0;
 					tile.passable = false;
 					tile.destructable = true;
 
-				} else if (CompareColors.Compare (color, woodFloorColor, 5.0f)) {
+				} else if (color == woodFloorColor) {
 					tile.textureIndex = 1;
 					tile.passable = true;
 					tile.destructable = false;
