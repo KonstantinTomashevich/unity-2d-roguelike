@@ -1,24 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Xml;
 using UnityEngine;
 
 public class Map : MonoBehaviour {
-	public Texture2D mapImage;
+	public string mapName;
 	public Color stoneWallColor;
 	public Color stoneFloorColor;
 	public Color woodWallColor;
 	public Color woodFloorColor;
 
 	private Tile[][] tiles;
+	private Texture2D tilesImage;
 
 	public Map () {
+		
 	}
 
 	~Map () {
+		
 	}
 
 	void Start () {
-		LoadMap ();
+		if (!LoadMap ()) {
+			return;
+		}
+
+		LoadTiles ();
 		GenerateMesh ();
 	}
 
@@ -26,13 +34,30 @@ public class Map : MonoBehaviour {
 		
 	}
 
-	private void LoadMap () {
-		tiles = new Tile[mapImage.width][];
-		for (int x = 0; x < mapImage.width; x++) {
-			tiles [x] = new Tile[mapImage.height];
+	private bool LoadMap () {
+		XmlDocument document = new XmlDocument ();
+		document.Load (Application.dataPath + "/Resources/Maps/" + mapName + "/Map.xml");
+		XmlNode root = document.DocumentElement;
 
-			for (int y = 0; y < mapImage.height; y++) {
-				Color color = mapImage.GetPixel (x, y);
+		XmlNode tilesInfoNode = root ["tiles"];
+		if (tilesInfoNode.Attributes ["type"].InnerText != "image") {
+			Debug.LogError ("At the moment, only tiles loading from image is supported!");
+			return false;
+		}
+
+		string imagePath = "Maps/" + mapName + "/" + tilesInfoNode.Attributes ["file"].InnerText;
+		tilesImage = Resources.Load (imagePath) as Texture2D;
+		Debug.Assert (tilesImage != null);
+		return true;
+	}
+
+	private void LoadTiles () {
+		tiles = new Tile[tilesImage.width][];
+		for (int x = 0; x < tilesImage.width; x++) {
+			tiles [x] = new Tile[tilesImage.height];
+
+			for (int y = 0; y < tilesImage.height; y++) {
+				Color color = tilesImage.GetPixel (x, y);
 				Tile tile = new Tile ();
 
 				if (color == stoneWallColor) {
@@ -65,16 +90,16 @@ public class Map : MonoBehaviour {
 
 	private void GenerateMesh () {
 		Mesh mesh = new Mesh ();
-		Vector2 meshOffset = new Vector2 (-mapImage.width / 2, -mapImage.height / 2);
+		Vector2 meshOffset = new Vector2 (-tilesImage.width / 2, -tilesImage.height / 2);
 
-		int tilesCount = mapImage.width * mapImage.height;
+		int tilesCount = tilesImage.width * tilesImage.height;
 		Vector3[] vertices = new Vector3[4 * tilesCount];
 		int[] triangles = new int[6 * tilesCount];
 		Vector2[] uv = new Vector2[4 * tilesCount];
 
-		for (int x = 0; x < mapImage.width; x++) {
-			for (int y = 0; y < mapImage.height; y++) {
-				int tileIndex = x * mapImage.width + y;
+		for (int x = 0; x < tilesImage.width; x++) {
+			for (int y = 0; y < tilesImage.height; y++) {
+				int tileIndex = x * tilesImage.width + y;
 
 				vertices [tileIndex * 4 + 0] = new Vector3 (-0.5f + x + meshOffset.x, -0.5f + y + meshOffset.y, 0.0f);
 				vertices [tileIndex * 4 + 1] = new Vector3 (0.5f + x + meshOffset.x, -0.5f + y + meshOffset.y, 0.0f);

@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ac5f3873be18bc47a5cd8b30384e745, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapImage: {fileID: 2800000, guid: 2308e5fe90f07104ba0ea8eae0d0889f, type: 3}
+  mapName: Test
   stoneWallColor: {r: 0.5882353, g: 0.5882353, b: 0.5882353, a: 1}
   stoneFloorColor: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 1}
   woodWallColor: {r: 0.5882353, g: 0.39215687, b: 0, a: 1}
@@ -295,3 +295,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae4b6cd5e39eb85479b1fff36c3d2125, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 5
+  up: 119
+  down: 115
+  left: 97
+  right: 100
