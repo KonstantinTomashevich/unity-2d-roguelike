@@ -1,0 +1,99 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public abstract class UnitBase : IUnit
+{
+	public const float STANDART_UNIT_MAX_HEALTH = 100.0f;
+	public const float STANDART_ATTACK_SPEED = 1.0f;
+	public const float STANDART_MOVE_SPEED = 1.0f;
+
+	private int id_;
+	private Vector2 position_;
+	private float health_;
+	private float attackSpeed_;
+	private float moveSpeed_;
+	private float armor_;
+
+	public UnitBase () {
+		id_ = 0;
+		position_ = Vector2.zero;
+		health_ = STANDART_UNIT_MAX_HEALTH;
+		attackSpeed_ = STANDART_ATTACK_SPEED;
+		moveSpeed_ = STANDART_MOVE_SPEED;
+		armor_ = 0.0f;
+	}
+
+	~UnitBase () {
+	}
+
+
+	public void ApplyDamage (float damage) {
+		float unblockedDamage = damage - armor_;
+		if (unblockedDamage > 0.0f) {
+			health_ -= unblockedDamage;
+		}
+	}
+
+	public abstract IAction[] MakeTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
+
+	public int id { 
+		get { 
+			return id_;
+		}
+
+		set { 
+			id_ = id; 
+		} 
+	}
+
+	public Vector2 position { 
+		get { 
+			return position_; 
+		}
+
+		set { 
+			position_ = position; 
+		}
+	}
+
+	public float health { 
+		get { 
+			return health_; 
+		}
+
+	}
+
+	public float attackSpeed { 
+		get { 
+			return attackSpeed_; 
+		}
+
+		set { 
+			Debug.Assert (attackSpeed >= 1.0f); 
+			attackSpeed_ = attackSpeed; 
+		}
+	}
+
+	public float moveSpeed { 
+		get { 
+			return moveSpeed_; 
+		}
+
+		set {
+			Debug.Assert (moveSpeed >= 1.0f);
+			moveSpeed_ = moveSpeed;
+		}
+	}
+
+	public float armor {
+		get {
+			return armor_;
+		}
+
+		set {
+			Debug.Assert (armor >= 0.0f);
+			armor_ = armor;
+		}
+	}
+}
