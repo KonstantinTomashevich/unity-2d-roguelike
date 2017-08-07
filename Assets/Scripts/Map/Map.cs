@@ -167,10 +167,10 @@ public class Map : MonoBehaviour {
 			position.x -= tiles_.Length / 2;
 			position.y -= tiles_ [0].Length / 2;
 		}
-
-		Debug.Log (position);
+			
 		PlayerUnit playerUnit = new PlayerUnit ();
 		playerUnit.position = position;
 		unitsManager.AddUnit (playerUnit);
+		MessageUtils.SendMessageToObjectsWithTag (tag, "PlayerUnitCreated", playerUnit);
 	}
 }
