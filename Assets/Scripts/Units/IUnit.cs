@@ -6,6 +6,9 @@ public interface IUnit {
 	int id { get; set; }
 	Vector2 position { get; set; }
 	float health { get; }
+	UnitType unitType { get; }
+
+	Vector2 attackForce { get; }
 	float attackSpeed { get; }
 	float moveSpeed { get; }
 	float armor { get; }
