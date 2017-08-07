@@ -11,6 +11,9 @@ public abstract class UnitBase : IUnit
 	private int id_;
 	private Vector2 position_;
 	private float health_;
+	private UnitType unitType_;
+
+	private Vector2 attackForce_;
 	private float attackSpeed_;
 	private float moveSpeed_;
 	private float armor_;
@@ -19,6 +22,8 @@ public abstract class UnitBase : IUnit
 		id_ = 0;
 		position_ = Vector2.zero;
 		health_ = STANDART_UNIT_MAX_HEALTH;
+
+		attackForce_ = Vector2.zero;
 		attackSpeed_ = STANDART_ATTACK_SPEED;
 		moveSpeed_ = STANDART_MOVE_SPEED;
 		armor_ = 0.0f;
@@ -43,7 +48,7 @@ public abstract class UnitBase : IUnit
 		}
 
 		set { 
-			id_ = id; 
+			id_ = value; 
 		} 
 	}
 
@@ -53,7 +58,7 @@ public abstract class UnitBase : IUnit
 		}
 
 		set { 
-			position_ = position; 
+			position_ = value; 
 		}
 	}
 
@@ -64,14 +69,37 @@ public abstract class UnitBase : IUnit
 
 	}
 
+	public UnitType unitType { 
+		get {
+			return unitType_;
+		}
+
+		set {
+			unitType_ = value;
+		}
+	}
+
+	public Vector2 attackForce { 
+		get {
+			return attackForce_;
+		}
+
+		set {
+			Debug.Assert (value.x >= 0.0f);
+			Debug.Assert (value.y >= 0.0f);
+			Debug.Assert (value.y >= value.x);
+			attackForce_ = value;
+		}
+	}
+
 	public float attackSpeed { 
 		get { 
 			return attackSpeed_; 
 		}
 
 		set { 
-			Debug.Assert (attackSpeed >= 1.0f); 
-			attackSpeed_ = attackSpeed; 
+			Debug.Assert (value >= 1.0f); 
+			attackSpeed_ = value; 
 		}
 	}
 
@@ -81,8 +109,8 @@ public abstract class UnitBase : IUnit
 		}
 
 		set {
-			Debug.Assert (moveSpeed >= 1.0f);
-			moveSpeed_ = moveSpeed;
+			Debug.Assert (value >= 1.0f);
+			moveSpeed_ = value;
 		}
 	}
 
@@ -92,8 +120,8 @@ public abstract class UnitBase : IUnit
 		}
 
 		set {
-			Debug.Assert (armor >= 0.0f);
-			armor_ = armor;
+			Debug.Assert (value >= 0.0f);
+			armor_ = value;
 		}
 	}
 }
