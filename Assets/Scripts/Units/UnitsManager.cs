@@ -47,6 +47,35 @@ public class UnitsManager : MonoBehaviour {
 		return units_.Remove (id);
 	}
 
+	public IUnit GetUnitById (int id) {
+		if (units_.ContainsKey (id)) {
+			return units_ [id];
+		} else {
+			return null;
+		}
+	}
+
+	public IUnit GetUnitOnTile (Vector2 tilePosition) {
+		foreach (IUnit unit in units_.Values) {
+			if (unit.position.Equals (tilePosition)) {
+				return unit;
+			}
+		}
+		return null;
+	}
+
+	public GameObject GetUnitSpriteById (int id) {
+		if (unitsSprites_.ContainsKey (id)) {
+			return unitsSprites_ [id];
+		} else {
+			return null;
+		}
+	}
+
+	public GameObject GetUnitSprite (IUnit unit) {
+		return GetUnitSpriteById (unit.id);
+	}
+
 	private UnitTypeData GetUnitTypeData (UnitType unitType) {
 		foreach (UnitTypeData unitTypeData in unitsTypesData) {
 			if (unitTypeData.unitType == unitType) {
