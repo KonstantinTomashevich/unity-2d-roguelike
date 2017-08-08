@@ -8,8 +8,8 @@ public class UnitsManager : MonoBehaviour {
 	public ItemsManager itemsManager;
 	public UnitTypeData[] unitsTypesData;
 
-	Dictionary <int, IUnit> units_;
-	Dictionary <int, GameObject> unitsSprites_;
+	private Dictionary <int, IUnit> units_;
+	private Dictionary <int, GameObject> unitsSprites_;
 
 	void Start () {
 		units_ = new Dictionary <int, IUnit> ();
@@ -74,6 +74,10 @@ public class UnitsManager : MonoBehaviour {
 
 	public GameObject GetUnitSprite (IUnit unit) {
 		return GetUnitSpriteById (unit.id);
+	}
+
+	void NextTurnRequest () {
+		
 	}
 
 	private UnitTypeData GetUnitTypeData (UnitType unitType) {
