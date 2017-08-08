@@ -146,6 +146,7 @@ public class Map : MonoBehaviour {
 	}
 
 	private void Init  () {
+		MessageUtils.SendMessageToObjectsWithTag (tag, "MapSize", new Vector2 (tiles_.Length, tiles_ [0].Length));
 		PlacePlayer ();
 	}
 

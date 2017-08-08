@@ -1,4 +1,4 @@
 <map>
     <tiles type="image" file="Tiles" />
-    <player positionX="14" positionY="62" mapCoords="true" invertX="false" invertY="true" />
+    <player positionX="14" positionY="50" mapCoords="true" invertX="false" invertY="true" />
 </map>
