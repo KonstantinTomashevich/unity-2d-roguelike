@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInputController : MonoBehaviour {
+	public Map map;
 	public UnitsManager unitsManager;
+	public ItemsManager itemsManager;
+
 	public KeyCode keyUp;
 	public KeyCode keyDown;
 	public KeyCode keyRight;

@@ -177,10 +177,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0aec5ae57dbb09247988c43ffaededaf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  map: {fileID: 545121508}
   unitsManager: {fileID: 1308547836}
+  itemsManager: {fileID: 246355109}
   keyUp: 119
   keyDown: 115
-  keyRight: 114
+  keyRight: 100
   keyLeft: 97
 --- !u!4 &376666923
 Transform:

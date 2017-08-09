@@ -11,13 +11,21 @@ public class UnitsManager : MonoBehaviour {
 	private Dictionary <int, IUnit> units_;
 	private Dictionary <int, GameObject> unitsSprites_;
 
+	private int currentProcessingUnitIndex_;
+	private IAction[] currentProcessingUnitActions_;
+	private int currentProcessingActionIndex_;
+	private float currentProcessingElapsedTime_;
+
 	void Start () {
 		units_ = new Dictionary <int, IUnit> ();
 		unitsSprites_ = new Dictionary <int, GameObject> ();
+
+		currentProcessingUnitIndex_ = -1;
+		currentProcessingActionIndex_ = -1;
+		currentProcessingElapsedTime_ = 0.0f;
 	}
 
 	void Update () {
-		
 	}
 
 	public void AddUnit (IUnit unit) {
@@ -77,9 +85,69 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	void NextTurnRequest () {
-		
+		currentProcessingUnitIndex_ = 0;
+		currentProcessingActionIndex_ = -1;
+		currentProcessingElapsedTime_ = 0.0f;
+		ProcessNextUnitTurn ();
 	}
 
+	void AllAnimationsFinished () {
+		ProcessCurrentActionAndStartNext ();
+	}
+
+	private void ProcessNextUnitTurn () {
+		CorrectPreviousUnitSpritePosition ();
+		IUnit unit = null;
+		while (currentProcessingUnitIndex_ < units_.Count && unit == null) {
+			unit = GetUnitByIndex (currentProcessingUnitIndex_);
+			if (unit.health <= 0.0f) {
+				units_.Remove (unit.id);
+				unit = null;
+			}
+		}
+
+		if (unit != null) {
+			currentProcessingUnitActions_ = unit.MakeTurn (map, this, itemsManager);
+			currentProcessingElapsedTime_ = 0.0f;
+			currentProcessingActionIndex_ = 0;
+
+			IAction action = currentProcessingUnitActions_ [0];
+			action.SetupAnimations (tag, map, this, itemsManager);
+			currentProcessingElapsedTime_ += action.time;
+
+		} else {
+			MessageUtils.SendMessageToObjectsWithTag (tag, "TurnFinished", null);
+		}
+	}
+
+	private void ProcessCurrentActionAndStartNext () {
+		IAction action = currentProcessingUnitActions_ [currentProcessingActionIndex_];
+		action.Commit (map, this, itemsManager);
+		currentProcessingActionIndex_++;
+
+		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
+		if (unit.health <= 0.0f) {
+			units_.Remove (unit.id);
+			ProcessNextUnitTurn ();
+
+		} else if (currentProcessingActionIndex_ >= currentProcessingUnitActions_.Length) {
+			currentProcessingUnitIndex_++;
+			ProcessNextUnitTurn ();
+
+		} else {
+			IAction next = currentProcessingUnitActions_ [currentProcessingActionIndex_];
+			currentProcessingElapsedTime_ += next.time;
+
+			if (currentProcessingElapsedTime_ > 1.0f) {
+				currentProcessingUnitIndex_++;
+				ProcessNextUnitTurn ();
+
+			} else {
+				next.SetupAnimations (tag, map, this, itemsManager);
+			}
+		}
+	}
+		
 	private UnitTypeData GetUnitTypeData (UnitType unitType) {
 		foreach (UnitTypeData unitTypeData in unitsTypesData) {
 			if (unitTypeData.unitType == unitType) {
@@ -87,5 +155,23 @@ public class UnitsManager : MonoBehaviour {
 			}
 		}
 		return UnitTypeData.EMPTY;
+	}
+
+	private IUnit GetUnitByIndex (int index) {
+		int currentIndex = 0;
+		foreach (KeyValuePair <int, IUnit> pair in units_) {
+			if (currentIndex == index) {
+				return pair.Value;
+			}
+			currentIndex++;
+		}
+		return null;
+	}
+
+	private void CorrectPreviousUnitSpritePosition () {
+		if (currentProcessingUnitIndex_ > 0) {
+			IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_ - 1);
+			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+		}
 	}
 }
