@@ -16,10 +16,21 @@ public class MoveAction : IAction {
 	~MoveAction () {
 	}
 
+	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+		MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
+			new MoveAnimation (unitsManager.GetUnitSprite (unit_), direction_));
+	}
+
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		Vector2 newPosition = unit_.position + direction_;
 		if (unitsManager.GetUnitOnTile (newPosition) == null) {
 			unit_.position = newPosition;
+		}
+	}
+
+	public float time { 
+		get {
+			return 1.0f / unit_.attackSpeed;
 		}
 	}
 }

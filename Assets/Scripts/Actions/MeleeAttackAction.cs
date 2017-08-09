@@ -16,11 +16,22 @@ public class MeleeAttackAction : IAction {
 	~MeleeAttackAction () {
 	}
 
+	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+		MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
+			new MeleeAttackAnimation (unitsManager.GetUnitSprite (unit_), direction_));
+	}
+
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		Vector2 attackPosition = unit_.position + direction_;
 		IUnit attacked = unitsManager.GetUnitOnTile (attackPosition);
 		if (attacked != null) {
 			attacked.ApplyDamage (Random.Range (unit_.attackForce.x, unit_.attackForce.y));
+		}
+	}
+
+	public float time { 
+		get {
+			return 1.0f / unit_.moveSpeed;
 		}
 	}
 }

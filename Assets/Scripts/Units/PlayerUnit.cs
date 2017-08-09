@@ -22,11 +22,7 @@ public class PlayerUnit : UnitBase {
 	public float CalculateActionsTime () {
 		float time = 0.0f;
 		foreach (IAction action in thisTurnActions_) {
-			if (action.GetType ().IsAssignableFrom (System.Type.GetType ("MoveAction"))) {
-				time += (1.0f / moveSpeed);
-			} else if (action.GetType ().IsAssignableFrom (System.Type.GetType ("MeleeAttackAction"))) {
-				time += (1.0f / attackSpeed);
-			}
+			time += action.time;
 		}
 		return time;
 	}
