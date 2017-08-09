@@ -43,6 +43,29 @@ public class Map : MonoBehaviour {
 		}
 	}
 
+	public Tile GetTile (int x, int y) {
+		if (x < 0 || y < 0 || x >= tiles_.Length || y >= tiles_ [0].Length) {
+			return null;
+		} else {
+			return tiles_ [x] [y];
+		}
+	}
+
+	public Tile GetTile (Vector2 position, bool mapCoords = false) {
+		if (!mapCoords) {
+			position = RealCoordsToMapCoords (position);
+		}
+		return GetTile (Mathf.RoundToInt (position.x), Mathf.RoundToInt (position.y));
+	}
+
+	public Vector2 RealCoordsToMapCoords (Vector2 position) {
+		return new Vector2 (position.x + tiles_.Length / 2, position.y + tiles_ [0].Length / 2);
+	}
+
+	public Vector2 MapCoordsToRealCoords (Vector2 position) {
+		return new Vector2 (position.x - tiles_.Length / 2, position.y - tiles_ [0].Length / 2);
+	}
+
 	private bool LoadMap () {
 		mapXml_ = new XmlDocument ();
 		mapXml_.Load (Application.dataPath + "/Resources/Maps/" + mapName + "/Map.xml");
@@ -165,8 +188,7 @@ public class Map : MonoBehaviour {
 		}
 			
 		if (bool.Parse (infoXML.Attributes ["mapCoords"].InnerText)) {
-			position.x -= tiles_.Length / 2;
-			position.y -= tiles_ [0].Length / 2;
+			position = MapCoordsToRealCoords (position);
 		}
 			
 		PlayerUnit playerUnit = new PlayerUnit ();

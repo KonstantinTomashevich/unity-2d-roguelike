@@ -110,10 +110,7 @@ public class UnitsManager : MonoBehaviour {
 			currentProcessingUnitActions_ = unit.MakeTurn (map, this, itemsManager);
 			currentProcessingElapsedTime_ = 0.0f;
 			currentProcessingActionIndex_ = 0;
-
-			IAction action = currentProcessingUnitActions_ [0];
-			action.SetupAnimations (tag, map, this, itemsManager);
-			currentProcessingElapsedTime_ += action.time;
+			SetupNextAction ();
 
 		} else {
 			MessageUtils.SendMessageToObjectsWithTag (tag, "TurnFinished", null);
@@ -129,22 +126,30 @@ public class UnitsManager : MonoBehaviour {
 		if (unit.health <= 0.0f) {
 			units_.Remove (unit.id);
 			ProcessNextUnitTurn ();
+		} else {
+			SetupNextAction ();
+		}
+	}
 
-		} else if (currentProcessingActionIndex_ >= currentProcessingUnitActions_.Length) {
+	private void SetupNextAction () {
+		IAction next = null;
+		while (next == null && currentProcessingActionIndex_ < currentProcessingUnitActions_.Length) {
+			next = currentProcessingUnitActions_ [currentProcessingActionIndex_];
+			if (!next.IsValid (map, this, itemsManager)) {
+				next = null;
+				currentProcessingActionIndex_++;
+			}
+		}
+
+		if (next != null) {
+			currentProcessingElapsedTime_ += next.time;
+		}
+
+		if (currentProcessingActionIndex_ >= currentProcessingUnitActions_.Length || currentProcessingElapsedTime_ > 1.0f) {
 			currentProcessingUnitIndex_++;
 			ProcessNextUnitTurn ();
-
 		} else {
-			IAction next = currentProcessingUnitActions_ [currentProcessingActionIndex_];
-			currentProcessingElapsedTime_ += next.time;
-
-			if (currentProcessingElapsedTime_ > 1.0f) {
-				currentProcessingUnitIndex_++;
-				ProcessNextUnitTurn ();
-
-			} else {
-				next.SetupAnimations (tag, map, this, itemsManager);
-			}
+			next.SetupAnimations (tag, map, this, itemsManager);
 		}
 	}
 		
