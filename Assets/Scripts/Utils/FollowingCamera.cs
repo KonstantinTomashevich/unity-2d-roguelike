@@ -7,27 +7,25 @@ public class FollowingCamera : MonoBehaviour {
 	public int borderSize;
 
 	private IUnit followingUnit_;
-	private bool translationEnabled_;
 	private bool scrollingToUnit_;
 	private Vector2 mapSize_;
 
 	void Start () {
-		translationEnabled_ = true;
 		scrollingToUnit_ = false;
 	}
 
 	void Update () {
 		if (scrollingToUnit_) {
 			CenterOnUnit ();
-			CheckIsScrollingNeeded ();
-
-		} else if (translationEnabled_) {
-			ProcessCameraTranslation ();
 
 		} else {
-			CenterOnUnit ();
+			ProcessCameraTranslation ();
 		}
-		CorrectCameraPosition ();
+
+		bool[] bordersReached = CorrectCameraPosition ();
+		if (scrollingToUnit_ && !CheckIsScrollingNeeded (bordersReached)) {
+			scrollingToUnit_ = false;
+		}
 	}
 
 	void MapSize (Vector2 mapSize) {
@@ -37,15 +35,13 @@ public class FollowingCamera : MonoBehaviour {
 	void PlayerUnitCreated (IUnit unit) {
 		followingUnit_ = unit;
 		scrollingToUnit_ = true;
-		translationEnabled_ = false;
 	}
 
-	void TurnStart () {
-		translationEnabled_ = false;
+	void NextTurnRequest () {
+		scrollingToUnit_ = true;
 	}
 
-	void TurnEnd () {
-		translationEnabled_ = true;
+	void TurnFinished () {
 	}
 
 	public IUnit followingUnit {
@@ -74,7 +70,7 @@ public class FollowingCamera : MonoBehaviour {
 			translate.y += speed;
 		}
 
-		translate *= Time.deltaTime;
+		translate *= Time.smoothDeltaTime;
 		transform.Translate (translate);
 	}
 
@@ -82,13 +78,13 @@ public class FollowingCamera : MonoBehaviour {
 		Vector2 cameraPosition = new Vector2 (transform.position.x, transform.position.y);
 		Vector2 unitPosition = followingUnit.position;
 		Vector2 diff = unitPosition - cameraPosition;
-		if (diff.magnitude > Time.deltaTime * speed) {
-			diff = diff.normalized * Time.deltaTime * speed;
+		if (diff.magnitude > Time.smoothDeltaTime * speed) {
+			diff = diff.normalized * Time.smoothDeltaTime * speed;
 		}
 		transform.Translate (new Vector3 (diff.x, diff.y, 0.0f));
 	}
 
-	private void CorrectCameraPosition () {
+	private bool[] CorrectCameraPosition () {
 		Vector3 cameraPosition = transform.position;
 		Camera currentCamera = gameObject.GetComponent <Camera> ();
 		float ortho = currentCamera.orthographicSize;
@@ -105,15 +101,16 @@ public class FollowingCamera : MonoBehaviour {
 		} else if (cameraPosition.y - ortho < -mapSize_.y / 2 - 0.5f) {
 			cameraPosition.y = -mapSize_.y / 2 + ortho - 0.5f;
 		}
+
+		bool[] bordersReached = { transform.position.x != cameraPosition.x, transform.position.y != cameraPosition.y };
 		transform.position = cameraPosition;
+		return bordersReached;
 	}
 
-	private void CheckIsScrollingNeeded () {
+	private bool CheckIsScrollingNeeded (bool[] bordersReached) {
 		Vector2 cameraPosition = new Vector2 (transform.position.x, transform.position.y);
 		Vector2 unitPosition = followingUnit.position;
-		if (cameraPosition.Equals (unitPosition)) {
-			scrollingToUnit_ = false;
-			translationEnabled_ = true;
-		}
+		return (unitPosition.x != cameraPosition.x && !bordersReached [0]) ||
+			(unitPosition.y != cameraPosition.y && !bordersReached [1]);
 	}
 }
