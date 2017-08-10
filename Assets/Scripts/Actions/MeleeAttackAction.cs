@@ -17,8 +17,7 @@ public class MeleeAttackAction : IAction {
 	}
 
 	public bool IsValid (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
-		Vector2 attackPosition = unit_.position + direction_;
-		return unitsManager.GetUnitOnTile (attackPosition) != null;
+		return StaticValidation (map, unitsManager, itemsManager, unit_, direction_);
 	}
 
 	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
@@ -35,6 +34,17 @@ public class MeleeAttackAction : IAction {
 	public float time { 
 		get {
 			return 1.0f / unit_.moveSpeed;
+		}
+	}
+
+	public static bool StaticValidation (Map map, UnitsManager unitsManager, ItemsManager itemsManager,
+		IUnit unit, Vector2 direction) {
+		if (direction == Vector2.up || direction == Vector2.down ||
+			direction == Vector2.left || direction == Vector2.right) {
+
+			return unitsManager.GetUnitOnTile (unit.position + direction) != null;
+		} else {
+			return false;
 		}
 	}
 }

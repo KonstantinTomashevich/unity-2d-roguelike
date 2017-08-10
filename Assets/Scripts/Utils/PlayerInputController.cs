@@ -53,14 +53,10 @@ public class PlayerInputController : MonoBehaviour {
 	}
 
 	private void AddMoveOrAttackAction (Vector2 direction) {
-		MoveAction moveAction = new MoveAction (playerUnit_, direction);
-		if (moveAction.IsValid (map, unitsManager, itemsManager)) {
-			playerUnit_.AddAction (moveAction);
-		} else {
-			MeleeAttackAction meleeAttackAction = new MeleeAttackAction (playerUnit_, direction);
-			if (meleeAttackAction.IsValid (map, unitsManager, itemsManager)) {
-				playerUnit_.AddAction (meleeAttackAction);
-			}
+		if (MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
+			playerUnit_.AddAction (new MoveAction (playerUnit_, direction));
+		} else if (MeleeAttackAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
+			playerUnit_.AddAction (new MeleeAttackAction (playerUnit_, direction));
 		}
 	}
 }

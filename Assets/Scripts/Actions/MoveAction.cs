@@ -17,9 +17,7 @@ public class MoveAction : IAction {
 	}
 
 	public bool IsValid (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
-		Vector2 newPosition = unit_.position + direction_;
-		Tile tile = map.GetTile (newPosition);
-		return unitsManager.GetUnitOnTile (newPosition) == null && tile != null && tile.passable;
+		return StaticValidation (map, unitsManager, itemsManager, unit_, direction_);
 	}
 
 	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
@@ -34,6 +32,19 @@ public class MoveAction : IAction {
 	public float time { 
 		get {
 			return 1.0f / unit_.attackSpeed;
+		}
+	}
+
+	public static bool StaticValidation (Map map, UnitsManager unitsManager, ItemsManager itemsManager,
+		IUnit unit, Vector2 direction) {
+		if (direction == Vector2.up || direction == Vector2.down ||
+		    direction == Vector2.left || direction == Vector2.right) {
+
+			Vector2 newPosition = unit.position + direction;
+			Tile tile = map.GetTile (newPosition);
+			return unitsManager.GetUnitOnTile (newPosition) == null && tile != null && tile.passable;
+		} else {
+			return false;
 		}
 	}
 }
