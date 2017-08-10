@@ -17,7 +17,6 @@ public class FollowingCamera : MonoBehaviour {
 	void Update () {
 		if (scrollingToUnit_) {
 			CenterOnUnit ();
-
 		} else {
 			ProcessCameraTranslation ();
 		}
@@ -110,7 +109,8 @@ public class FollowingCamera : MonoBehaviour {
 	private bool CheckIsScrollingNeeded (bool[] bordersReached) {
 		Vector2 cameraPosition = new Vector2 (transform.position.x, transform.position.y);
 		Vector2 unitPosition = followingUnit.position;
-		return (unitPosition.x != cameraPosition.x && !bordersReached [0]) ||
-			(unitPosition.y != cameraPosition.y && !bordersReached [1]);
+		bool shouldScrollX = !Mathf.Approximately (unitPosition.x, cameraPosition.x) && !bordersReached [0];
+		bool shouldScrollY = !Mathf.Approximately (unitPosition.y, cameraPosition.y) && !bordersReached [1];
+		return shouldScrollX || shouldScrollY;
 	}
 }
