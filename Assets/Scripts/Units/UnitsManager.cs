@@ -52,7 +52,13 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public bool RemoveUnit (int id) {
-		return units_.Remove (id);
+		bool exists = units_.Remove (id) && unitsSprites_.ContainsKey (id);
+		if (exists) {
+			GameObject spriteObject = unitsSprites_ [id];
+			unitsSprites_.Remove (id);
+			Destroy (spriteObject);
+		}
+		return exists;
 	}
 
 	public IUnit GetUnitById (int id) {
@@ -101,7 +107,7 @@ public class UnitsManager : MonoBehaviour {
 		while (currentProcessingUnitIndex_ < units_.Count && unit == null) {
 			unit = GetUnitByIndex (currentProcessingUnitIndex_);
 			if (unit.health <= 0.0f) {
-				units_.Remove (unit.id);
+				RemoveUnit (unit.id);
 				unit = null;
 			}
 		}
@@ -124,7 +130,7 @@ public class UnitsManager : MonoBehaviour {
 
 		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
 		if (unit.health <= 0.0f) {
-			units_.Remove (unit.id);
+			RemoveUnit (unit.id);
 			ProcessNextUnitTurn ();
 		} else {
 			SetupNextAction ();
