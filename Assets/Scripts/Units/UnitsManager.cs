@@ -113,6 +113,32 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public void ProcessXmlSpawner (XmlNode xml) {
+		int count = Random.Range (
+			            int.Parse (xml.Attributes ["minCount"].InnerText),
+			            int.Parse (xml.Attributes ["maxCount"].InnerText));
+		
+		Vector2 xMinMax = new Vector2 (
+			                  float.Parse (xml.Attributes ["worldRectX0"].InnerText),
+			                  float.Parse (xml.Attributes ["worldRectX1"].InnerText));
+
+		Vector2 yMinMax = new Vector2 (
+			float.Parse (xml.Attributes ["worldRectY0"].InnerText),
+			float.Parse (xml.Attributes ["worldRectY1"].InnerText));
+
+		for (int index = 0; index < count; index++) {
+			Vector2 position = Vector2.zero;
+			Tile tile = null;
+
+			do {
+				position.x = Mathf.Round (Random.Range (xMinMax.x, xMinMax.y));
+				position.y = Mathf.Round (Random.Range (yMinMax.x, yMinMax.y));
+				tile = map.GetTile (position);
+			} while (GetUnitOnTile (position) != null || tile == null || !tile.passable);
+
+			AiUnit unit = SpawnAiUnitFromXml (xml);
+			unit.position = position;
+			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+		}
 	}
 
 	void LoadUnitsTypes (XmlNode rootNode) {
