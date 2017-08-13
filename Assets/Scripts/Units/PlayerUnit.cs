@@ -7,7 +7,7 @@ public class PlayerUnit : UnitBase {
 
 	public PlayerUnit () {
 		thisTurnActions_ = new List <IAction> ();
-		unitType = UnitType.PLAYER;
+		unitType = "player";
 	}
 
 	~PlayerUnit () {

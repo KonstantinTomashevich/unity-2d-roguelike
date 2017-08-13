@@ -1,4 +1,5 @@
 <map>
     <tiles type="image" file="Tiles" />
+    <unitsTypes type="default"/>
     <player positionX="14" positionY="60" mapCoords="true" invertX="false" invertY="true" />
 </map>

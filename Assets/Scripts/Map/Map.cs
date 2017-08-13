@@ -33,12 +33,13 @@ public class Map : MonoBehaviour {
 
 		LoadTiles ();
 		GenerateMesh ();
+		SendLoadUnitsTypes ();
 		isFirstUpdate_ = true;
 	}
 
 	void Update () {
 		if (isFirstUpdate_) {
-			Init();
+			Init ();
 			isFirstUpdate_ = false;
 		}
 	}
@@ -157,6 +158,29 @@ public class Map : MonoBehaviour {
 		mesh.triangles = triangles;
 		mesh.uv = uv;
 		GetComponent <MeshFilter> ().mesh = mesh;
+	}
+
+	private void SendLoadUnitsTypes () {
+		XmlNode unitsTypesNode = mapXml_.DocumentElement ["unitsTypes"];
+		Debug.Assert (unitsTypesNode != null);
+		string type = unitsTypesNode.Attributes ["type"].InnerText;
+
+		XmlNode nodeToLoad = null;
+		if (type.Equals ("inner")) {
+			nodeToLoad = unitsTypesNode;
+
+		} else if (type.Equals ("file")) {
+			string fileName = unitsTypesNode.Attributes ["file"].InnerText;
+			XmlDocument unitsTypesDocument = new XmlDocument ();
+			unitsTypesDocument.Load (Application.dataPath + "/Resources/Maps/" + mapName + "/" + fileName);
+			nodeToLoad = unitsTypesDocument.DocumentElement;
+
+		} else {
+			XmlDocument unitsTypesDocument = new XmlDocument ();
+			unitsTypesDocument.Load (Application.dataPath + "/Resources/DefaultUnits.xml");
+			nodeToLoad = unitsTypesDocument.DocumentElement;
+		}
+		MessageUtils.SendMessageToObjectsWithTag (tag, "LoadUnitsTypes", nodeToLoad);
 	}
     
     private Vector2 GetTileTextureCoord (int tileTextureIndex) {

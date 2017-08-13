@@ -1,20 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Xml;
 
 public class UnitsManager : MonoBehaviour {
 	public Map map;
 	public ItemsManager itemsManager;
-	public UnitTypeData[] unitsTypesData;
 
 	private Dictionary <int, IUnit> units_;
 	private Dictionary <int, GameObject> unitsSprites_;
+	private Dictionary <string, UnitTypeData> unitsTypesData_;
 
 	private int currentProcessingUnitIndex_;
 	private IAction[] currentProcessingUnitActions_;
 	private int currentProcessingActionIndex_;
 	private float currentProcessingElapsedTime_;
+
+	public UnitsManager () {
+		unitsTypesData_ = new Dictionary <string, UnitTypeData> ();
+	}
+
+	~UnitsManager () {
+	}
 
 	void Start () {
 		units_ = new Dictionary <int, IUnit> ();
@@ -42,7 +49,7 @@ public class UnitsManager : MonoBehaviour {
 		spriteObject.transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 		unitsSprites_.Add (id, spriteObject);
 
-		UnitTypeData unitTypeData = GetUnitTypeData (unit.unitType);
+		UnitTypeData unitTypeData = unitsTypesData_ [unit.unitType];
 		Debug.Assert (!unitTypeData.Equals (UnitTypeData.EMPTY));
 
 		SpriteRenderer spriteRenderer = spriteObject.AddComponent <SpriteRenderer> ();
@@ -88,6 +95,15 @@ public class UnitsManager : MonoBehaviour {
 
 	public GameObject GetUnitSprite (IUnit unit) {
 		return GetUnitSpriteById (unit.id);
+	}
+
+	void LoadUnitsTypes (XmlNode rootNode) {
+		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
+		foreach (XmlNode node in rootNode.ChildNodes) {
+			UnitTypeData data = new UnitTypeData ();
+			data.sprite = Resources.Load <Sprite> (spritesPathPrefix + node.Attributes ["sprite"].InnerText);
+			unitsTypesData_ [node.LocalName] = data;
+		}
 	}
 
 	void NextTurnRequest () {
@@ -157,15 +173,6 @@ public class UnitsManager : MonoBehaviour {
 		} else {
 			next.SetupAnimations (tag, map, this, itemsManager);
 		}
-	}
-		
-	private UnitTypeData GetUnitTypeData (UnitType unitType) {
-		foreach (UnitTypeData unitTypeData in unitsTypesData) {
-			if (unitTypeData.unitType == unitType) {
-				return unitTypeData;
-			}
-		}
-		return UnitTypeData.EMPTY;
 	}
 
 	private IUnit GetUnitByIndex (int index) {

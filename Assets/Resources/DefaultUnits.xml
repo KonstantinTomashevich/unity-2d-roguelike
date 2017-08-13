@@ -1,0 +1,4 @@
+<unitsTypes spritesPrefix="DefaultUnitsSprites/">
+	<player sprite="knight"/>
+	<orc sprite="orc"/>
+</unitsTypes>

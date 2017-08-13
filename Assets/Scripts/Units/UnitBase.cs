@@ -11,7 +11,7 @@ public abstract class UnitBase : IUnit
 	private int id_;
 	private Vector2 position_;
 	private float health_;
-	private UnitType unitType_;
+	private string unitType_;
 
 	private Vector2 attackForce_;
 	private float attackSpeed_;
@@ -69,7 +69,7 @@ public abstract class UnitBase : IUnit
 
 	}
 
-	public UnitType unitType { 
+	public string unitType { 
 		get {
 			return unitType_;
 		}
