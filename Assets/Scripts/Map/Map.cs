@@ -69,18 +69,20 @@ public class Map : MonoBehaviour {
 
 	public Vector2 GetWorldTransformFromXml (XmlNode xml) {
 		Vector2 position = Vector2.zero;
-		position.x = int.Parse (xml.Attributes ["positionX"].InnerText);
-		position.y = int.Parse (xml.Attributes ["positionY"].InnerText);
+		if (xml.Attributes ["positionX"] != null && xml.Attributes ["positionY"] != null) {
+			position.x = int.Parse (xml.Attributes ["positionX"].InnerText);
+			position.y = int.Parse (xml.Attributes ["positionY"].InnerText);
+		}
 
-		if (bool.Parse (xml.Attributes ["invertX"].InnerText)) {
+		if (xml.Attributes ["invertX"] != null && bool.Parse (xml.Attributes ["invertX"].InnerText)) {
 			position.x = tiles_.Length - position.x;
 		}
 
-		if (bool.Parse (xml.Attributes ["invertY"].InnerText)) {
+		if (xml.Attributes ["invertY"] != null && bool.Parse (xml.Attributes ["invertY"].InnerText)) {
 			position.y = tiles_ [0].Length - position.y;
 		}
 
-		if (bool.Parse (xml.Attributes ["mapCoords"].InnerText)) {
+		if (xml.Attributes ["mapCoords"] != null && bool.Parse (xml.Attributes ["mapCoords"].InnerText)) {
 			position = MapCoordsToRealCoords (position);
 		}
 		return position;
