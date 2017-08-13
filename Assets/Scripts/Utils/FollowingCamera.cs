@@ -8,10 +8,12 @@ public class FollowingCamera : MonoBehaviour {
 
 	private IUnit followingUnit_;
 	private bool scrollingToUnit_;
+	private bool isInTurn_;
 	private Vector2 mapSize_;
 
 	void Start () {
 		scrollingToUnit_ = false;
+		isInTurn_ = false;
 	}
 
 	void Update () {
@@ -22,7 +24,7 @@ public class FollowingCamera : MonoBehaviour {
 		}
 
 		bool[] bordersReached = CorrectCameraPosition ();
-		if (scrollingToUnit_ && !CheckIsScrollingNeeded (bordersReached)) {
+		if (scrollingToUnit_ && !isInTurn_ && !CheckIsScrollingNeeded (bordersReached)) {
 			scrollingToUnit_ = false;
 		}
 	}
@@ -38,9 +40,11 @@ public class FollowingCamera : MonoBehaviour {
 
 	void NextTurnRequest () {
 		scrollingToUnit_ = true;
+		isInTurn_ = true;
 	}
 
 	void TurnFinished () {
+		isInTurn_ = false;
 	}
 
 	public IUnit followingUnit {
