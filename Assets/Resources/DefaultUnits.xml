@@ -1,4 +1,19 @@
 <unitsTypes spritesPrefix="DefaultUnitsSprites/">
-	<player sprite="knight"/>
-	<orc sprite="orc"/>
+	<player 
+		sprite="knight" 
+		armor="10" 
+		minAttack="10" 
+		maxAttack="20"
+		moveSpeed="1"
+		attackSpeed="1"
+		/>
+
+	<orc 
+		sprite="orc" 
+		armor="5" 
+		minAttack="5" 
+		maxAttack="30"
+		moveSpeed="1"
+		attackSpeed="1"
+		/>
 </unitsTypes>

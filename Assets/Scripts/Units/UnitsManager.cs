@@ -52,6 +52,11 @@ public class UnitsManager : MonoBehaviour {
 		UnitTypeData unitTypeData = unitsTypesData_ [unit.unitType];
 		Debug.Assert (unitTypeData != null);
 
+		unit.armor = unitTypeData.defaultArmor;
+		unit.attackForce = unitTypeData.defaultAttackForce;
+		unit.moveSpeed = unitTypeData.defaultMoveSpeed;
+		unit.attackSpeed = unitTypeData.defaultAttackSpeed;
+
 		SpriteRenderer spriteRenderer = spriteObject.AddComponent <SpriteRenderer> ();
 		spriteRenderer.sprite = unitTypeData.sprite;
 		spriteRenderer.drawMode = SpriteDrawMode.Sliced;

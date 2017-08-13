@@ -8,10 +8,10 @@ public interface IUnit {
 	float health { get; }
 	string unitType { get; }
 
-	Vector2 attackForce { get; }
-	float attackSpeed { get; }
-	float moveSpeed { get; }
-	float armor { get; }
+	Vector2 attackForce { get; set; }
+	float attackSpeed { get; set; }
+	float moveSpeed { get; set; }
+	float armor { get; set; }
 
 	void ApplyDamage (float damage);
 	IAction[] MakeTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
