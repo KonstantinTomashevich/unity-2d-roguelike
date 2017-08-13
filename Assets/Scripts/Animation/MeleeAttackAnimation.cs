@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MeleeAttackAnimation : IAnimation {
-	public const float ANIMATION_TIME = 0.25f;
+	public const float ANIMATION_TIME = 0.5f;
 
 	private float elapsedTime_;
 	private GameObject sprite_;	

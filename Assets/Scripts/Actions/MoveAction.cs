@@ -31,7 +31,7 @@ public class MoveAction : IAction {
 
 	public float time { 
 		get {
-			return 1.0f / unit_.attackSpeed;
+			return 1.0f / unit_.moveSpeed;
 		}
 	}
 

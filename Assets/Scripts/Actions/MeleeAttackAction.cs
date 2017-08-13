@@ -33,7 +33,7 @@ public class MeleeAttackAction : IAction {
 
 	public float time { 
 		get {
-			return 1.0f / unit_.moveSpeed;
+			return 1.0f / unit_.attackSpeed;
 		}
 	}
 
