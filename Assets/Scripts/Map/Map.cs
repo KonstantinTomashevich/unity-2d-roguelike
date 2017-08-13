@@ -67,6 +67,25 @@ public class Map : MonoBehaviour {
 		return new Vector2 (position.x - tiles_.Length / 2, position.y - tiles_ [0].Length / 2);
 	}
 
+	public Vector2 GetWorldTransformFromXml (XmlNode xml) {
+		Vector2 position = Vector2.zero;
+		position.x = int.Parse (xml.Attributes ["positionX"].InnerText);
+		position.y = int.Parse (xml.Attributes ["positionY"].InnerText);
+
+		if (bool.Parse (xml.Attributes ["invertX"].InnerText)) {
+			position.x = tiles_.Length - position.x;
+		}
+
+		if (bool.Parse (xml.Attributes ["invertY"].InnerText)) {
+			position.y = tiles_ [0].Length - position.y;
+		}
+
+		if (bool.Parse (xml.Attributes ["mapCoords"].InnerText)) {
+			position = MapCoordsToRealCoords (position);
+		}
+		return position;
+	}
+
 	private bool LoadMap () {
 		mapXml_ = new XmlDocument ();
 		mapXml_.Load (Application.dataPath + "/Resources/Maps/" + mapName + "/Map.xml");
@@ -194,30 +213,18 @@ public class Map : MonoBehaviour {
 
 	private void Init  () {
 		MessageUtils.SendMessageToObjectsWithTag (tag, "MapSize", new Vector2 (tiles_.Length, tiles_ [0].Length));
-		PlacePlayer ();
+		LoadUnits ();
 	}
 
-	private void PlacePlayer () {
-		XmlNode infoXML = mapXml_.DocumentElement ["player"];
-		Vector2 position = Vector2.zero;
-		position.x = int.Parse (infoXML.Attributes ["positionX"].InnerText);
-		position.y = int.Parse (infoXML.Attributes ["positionY"].InnerText);
-
-		if (bool.Parse (infoXML.Attributes ["invertX"].InnerText)) {
-			position.x = tiles_.Length - position.x;
+	private void LoadUnits () {
+		foreach (XmlNode xml in mapXml_.DocumentElement ["units"]) {
+			if (xml.LocalName == "player") {
+				unitsManager.SpawnPlayerFromXml (xml);
+			} else if (xml.LocalName == "unit") {
+				unitsManager.SpawnAiUnitFromXml (xml);
+			} else if (xml.LocalName == "spawner") {
+				unitsManager.ProcessXmlSpawner (xml);
+			}
 		}
-			
-		if (bool.Parse (infoXML.Attributes ["invertY"].InnerText)) {
-			position.y = tiles_ [0].Length - position.y;
-		}
-			
-		if (bool.Parse (infoXML.Attributes ["mapCoords"].InnerText)) {
-			position = MapCoordsToRealCoords (position);
-		}
-			
-		PlayerUnit playerUnit = new PlayerUnit ();
-		playerUnit.position = position;
-		unitsManager.AddUnit (playerUnit);
-		MessageUtils.SendMessageToObjectsWithTag (tag, "PlayerUnitCreated", playerUnit);
 	}
 }

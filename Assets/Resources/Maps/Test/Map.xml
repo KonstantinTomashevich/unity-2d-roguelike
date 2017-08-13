@@ -1,5 +1,8 @@
 <map>
     <tiles type="image" file="Tiles" />
     <unitsTypes type="default"/>
-    <player positionX="14" positionY="60" mapCoords="true" invertX="false" invertY="true" />
+    <units>
+    	<player type="player" positionX="14" positionY="60" mapCoords="true" invertX="false" invertY="true" health="100" deltaMoveSpeed="+7"/>
+    	<unit type="orc" positionX="14" positionY="50" mapCoords="true" invertX="false" invertY="true" health="100"/>
+    </units>
 </map>

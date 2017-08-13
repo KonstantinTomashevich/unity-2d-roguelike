@@ -102,6 +102,19 @@ public class UnitsManager : MonoBehaviour {
 		return GetUnitSpriteById (unit.id);
 	}
 
+	public PlayerUnit SpawnPlayerFromXml (XmlNode xml) {
+		PlayerUnit playerUnit = SpawnUnitFromXml <PlayerUnit> (xml, (unitType, health) => new PlayerUnit (health));
+		MessageUtils.SendMessageToObjectsWithTag (tag, "PlayerUnitCreated", playerUnit);
+		return playerUnit;
+	}
+
+	public AiUnit SpawnAiUnitFromXml (XmlNode xml) {
+		return SpawnUnitFromXml <AiUnit> (xml, (unitType, health) => new AiUnit (unitType, health));;
+	}
+
+	public void ProcessXmlSpawner (XmlNode xml) {
+	}
+
 	void LoadUnitsTypes (XmlNode rootNode) {
 		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
 		foreach (XmlNode node in rootNode.ChildNodes) {
@@ -140,6 +153,30 @@ public class UnitsManager : MonoBehaviour {
 		} else {
 			MessageUtils.SendMessageToObjectsWithTag (tag, "TurnFinished", null);
 		}
+	}
+
+	private T SpawnUnitFromXml <T> (XmlNode xml, System.Func <string, float, T> Construct) where T : IUnit {
+		T unit = Construct (xml.Attributes ["type"].InnerText, float.Parse (xml.Attributes ["health"].InnerText));
+		unit.position = map.GetWorldTransformFromXml (xml);
+		AddUnit (unit);
+
+		if (xml.Attributes ["deltaMoveSpeed"] != null) {
+			unit.moveSpeed += float.Parse (xml.Attributes ["deltaMoveSpeed"].InnerText);
+		}
+
+		if (xml.Attributes ["deltaAttackSpeed"] != null) {
+			unit.attackSpeed += float.Parse (xml.Attributes ["deltaAttackSpeed"].InnerText);
+		}
+
+		if (xml.Attributes ["deltaAttack"] != null) {
+			float delta = float.Parse (xml.Attributes ["deltaAttack"].InnerText);
+			unit.attackForce += new Vector2 (delta, delta);
+		}
+
+		if (xml.Attributes ["deltaArmor"] != null) {
+			unit.armor += float.Parse (xml.Attributes ["deltaArmor"].InnerText);
+		}
+		return unit;
 	}
 
 	private void ProcessCurrentActionAndStartNext () {

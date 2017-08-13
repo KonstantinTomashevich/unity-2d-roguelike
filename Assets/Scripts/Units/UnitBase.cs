@@ -18,10 +18,11 @@ public abstract class UnitBase : IUnit
 	private float moveSpeed_;
 	private float armor_;
 
-	public UnitBase () {
+	public UnitBase (string unitType, float health = STANDART_UNIT_MAX_HEALTH) {
 		id_ = 0;
+		unitType_ = unitType;
 		position_ = Vector2.zero;
-		health_ = STANDART_UNIT_MAX_HEALTH;
+		health_ = health;
 
 		attackForce_ = Vector2.zero;
 		attackSpeed_ = STANDART_ATTACK_SPEED;

@@ -5,9 +5,8 @@ using UnityEngine;
 public class PlayerUnit : UnitBase {
 	private List <IAction> thisTurnActions_;
 
-	public PlayerUnit () {
+	public PlayerUnit (float health = STANDART_UNIT_MAX_HEALTH) : base ("player", health) {
 		thisTurnActions_ = new List <IAction> ();
-		unitType = "player";
 	}
 
 	~PlayerUnit () {

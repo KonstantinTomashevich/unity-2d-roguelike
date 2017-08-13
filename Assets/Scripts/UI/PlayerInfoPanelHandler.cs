@@ -21,11 +21,11 @@ public class PlayerInfoPanelHandler : MonoBehaviour {
 			healthBar.size = playerUnit_.health / UnitBase.STANDART_UNIT_MAX_HEALTH;
 			healthText.text = Mathf.Round (playerUnit_.health / floorPrecision) * floorPrecision + " HP";
 			armorText.text = Mathf.Round (playerUnit_.armor / floorPrecision) * floorPrecision + 
-				"    " + Mathf.Floor (1.0f / playerUnit_.moveSpeed) + " moves per turn";
+				"    " + Mathf.Floor (playerUnit_.moveSpeed) + " moves per turn";
 
 			attackText.text = Mathf.Floor (playerUnit_.attackForce.x / floorPrecision) * floorPrecision + "-" +
 				Mathf.Round (playerUnit_.attackForce.y / floorPrecision) * floorPrecision + " (" +
-				Mathf.Floor (1.0f / playerUnit_.attackSpeed) + " attacks per turn)";
+				Mathf.Floor (playerUnit_.attackSpeed) + " attacks per turn)";
 		}
 	}
 
