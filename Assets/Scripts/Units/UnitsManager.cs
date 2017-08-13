@@ -50,7 +50,7 @@ public class UnitsManager : MonoBehaviour {
 		unitsSprites_.Add (id, spriteObject);
 
 		UnitTypeData unitTypeData = unitsTypesData_ [unit.unitType];
-		Debug.Assert (!unitTypeData.Equals (UnitTypeData.EMPTY));
+		Debug.Assert (unitTypeData != null);
 
 		SpriteRenderer spriteRenderer = spriteObject.AddComponent <SpriteRenderer> ();
 		spriteRenderer.sprite = unitTypeData.sprite;
@@ -100,9 +100,7 @@ public class UnitsManager : MonoBehaviour {
 	void LoadUnitsTypes (XmlNode rootNode) {
 		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
 		foreach (XmlNode node in rootNode.ChildNodes) {
-			UnitTypeData data = new UnitTypeData ();
-			data.sprite = Resources.Load <Sprite> (spritesPathPrefix + node.Attributes ["sprite"].InnerText);
-			unitsTypesData_ [node.LocalName] = data;
+			unitsTypesData_ [node.LocalName] = new UnitTypeData (node, spritesPathPrefix);
 		}
 	}
 
