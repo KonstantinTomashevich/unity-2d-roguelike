@@ -12,10 +12,14 @@ public class PlayerUnit : UnitBase {
 	~PlayerUnit () {
 	}
 
-	public override IAction[] MakeTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
-		IAction[] actions = thisTurnActions_.ToArray ();
-		thisTurnActions_.Clear ();
-		return actions;
+	public override IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+		if (thisTurnActions_.Count > 0) {
+			IAction action = thisTurnActions_ [0];
+			thisTurnActions_.RemoveAt (0);
+			return action;
+		} else {
+			return null;
+		}
 	}
 
 	public float CalculateActionsTime () {
@@ -28,5 +32,9 @@ public class PlayerUnit : UnitBase {
 
 	public void AddAction (IAction action) {
 		thisTurnActions_.Add (action);
+	}
+
+	public void ClearActions () {
+		thisTurnActions_.Clear ();
 	}
 }

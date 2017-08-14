@@ -9,8 +9,8 @@ public class AiUnit : UnitBase {
 	~AiUnit () {
 	}
 
-	public override IAction[] MakeTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+	public override IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		// TODO: Implement AI.
-		return new IAction[0];
+		return null;
 	}
 }

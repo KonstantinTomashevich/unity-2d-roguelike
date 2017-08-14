@@ -41,8 +41,7 @@ public abstract class UnitBase : IUnit
 		}
 	}
 
-	public abstract IAction[] MakeTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
-
+	public abstract IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
 	public int id { 
 		get { 
 			return id_;

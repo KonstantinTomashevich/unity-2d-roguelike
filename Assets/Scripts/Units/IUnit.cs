@@ -14,5 +14,5 @@ public interface IUnit {
 	float armor { get; set; }
 
 	void ApplyDamage (float damage);
-	IAction[] MakeTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
+	IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
 }

@@ -12,8 +12,7 @@ public class UnitsManager : MonoBehaviour {
 	private Dictionary <string, UnitTypeData> unitsTypesData_;
 
 	private int currentProcessingUnitIndex_;
-	private IAction[] currentProcessingUnitActions_;
-	private int currentProcessingActionIndex_;
+	private IAction currentProcessingAction_;
 	private float currentProcessingElapsedTime_;
 
 	public UnitsManager () {
@@ -27,8 +26,8 @@ public class UnitsManager : MonoBehaviour {
 		units_ = new Dictionary <int, IUnit> ();
 		unitsSprites_ = new Dictionary <int, GameObject> ();
 
+		currentProcessingAction_ = null;
 		currentProcessingUnitIndex_ = -1;
-		currentProcessingActionIndex_ = -1;
 		currentProcessingElapsedTime_ = 0.0f;
 	}
 
@@ -150,7 +149,7 @@ public class UnitsManager : MonoBehaviour {
 
 	void NextTurnRequest () {
 		currentProcessingUnitIndex_ = 0;
-		currentProcessingActionIndex_ = -1;
+		currentProcessingAction_ = null;
 		currentProcessingElapsedTime_ = 0.0f;
 		ProcessNextUnitTurn ();
 	}
@@ -171,9 +170,7 @@ public class UnitsManager : MonoBehaviour {
 		}
 
 		if (unit != null) {
-			currentProcessingUnitActions_ = unit.MakeTurn (map, this, itemsManager);
 			currentProcessingElapsedTime_ = 0.0f;
-			currentProcessingActionIndex_ = 0;
 			SetupNextAction ();
 
 		} else {
@@ -206,10 +203,7 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	private void ProcessCurrentActionAndStartNext () {
-		IAction action = currentProcessingUnitActions_ [currentProcessingActionIndex_];
-		action.Commit (map, this, itemsManager);
-		currentProcessingActionIndex_++;
-
+		currentProcessingAction_.Commit (map, this, itemsManager);
 		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
 		if (unit.health <= 0.0f) {
 			RemoveUnit (unit.id);
@@ -220,24 +214,21 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	private void SetupNextAction () {
-		IAction next = null;
-		while (next == null && currentProcessingActionIndex_ < currentProcessingUnitActions_.Length) {
-			next = currentProcessingUnitActions_ [currentProcessingActionIndex_];
-			if (!next.IsValid (map, this, itemsManager)) {
-				next = null;
-				currentProcessingActionIndex_++;
-			}
+		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
+		currentProcessingAction_ = null;
+		do {
+			currentProcessingAction_ = unit.NextAction (map, this, itemsManager);
+		} while (currentProcessingAction_ != null && !currentProcessingAction_.IsValid (map, this, itemsManager));
+
+		if (currentProcessingAction_ != null) {
+			currentProcessingElapsedTime_ += currentProcessingAction_.time;
 		}
 
-		if (next != null) {
-			currentProcessingElapsedTime_ += next.time;
-		}
-
-		if (currentProcessingActionIndex_ >= currentProcessingUnitActions_.Length || currentProcessingElapsedTime_ > 1.0f) {
+		if (currentProcessingAction_ == null || currentProcessingElapsedTime_ > 1.0f) {
 			currentProcessingUnitIndex_++;
 			ProcessNextUnitTurn ();
 		} else {
-			next.SetupAnimations (tag, map, this, itemsManager);
+			currentProcessingAction_.SetupAnimations (tag, map, this, itemsManager);
 		}
 	}
 
