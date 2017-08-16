@@ -33,9 +33,9 @@ public class SelectionInput : MonoBehaviour {
 			spriteRenderer.color = disabledColor;
 		} else {
 			Vector2 direction = CalculateDirection ();
-			if (MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
+			if (CanMove (direction)) {
 				spriteRenderer.color = moveColor;
-			} else if (MeleeAttackAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
+			} else if (CanAttack (direction)) {
 				spriteRenderer.color = attackColor;
 			} else {
 				spriteRenderer.color = disabledColor;
@@ -57,7 +57,13 @@ public class SelectionInput : MonoBehaviour {
 	}
 
 	void AllImmediateActionsFinished () {
-		isProcessingTurn_ = false;;
+		isProcessingTurn_ = false;
+		// Use 1.00001f instead of 1.0f because 0.8f + 0.2f > 1.0f in C# math. :)
+		if (playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) > 1.00001f &&
+			playerElapsedTime_ + MeleeAttackAction.StaticTime (playerUnit_) > 1.00001f) {
+
+			MessageUtils.SendMessageToObjectsWithTag (tag, "NextTurnRequest", null);
+		}
 	}
 
 	void ImmediateActionsMaxTimeReached () {
@@ -66,18 +72,31 @@ public class SelectionInput : MonoBehaviour {
 
 	void ImmediateActionStart (IAction action) {
 		isProcessingTurn_ = true;
+		if (action is IUnitAction && (action as IUnitAction).unit == playerUnit_) {
+			playerElapsedTime_ += action.time;
+		}
 	}
 
 	void ScreenPressed () {
 		if (playerUnit_ != null && !isProcessingTurn_) {
 			Vector2 direction = CalculateDirection ();
-			if (MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
+			if (CanMove (direction)) {
 				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MoveAction (playerUnit_, direction));
 
-			} else if (MeleeAttackAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
+			} else if (CanAttack (direction)) {
 				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MeleeAttackAction (playerUnit_, direction));
 			}
 		}
+	}
+
+	private bool CanMove (Vector2 direction) {
+		return MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction) &&
+			playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) <= 1.0001f;
+	}
+
+	private bool CanAttack (Vector2 direction) {
+		return MeleeAttackAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction) &&
+			playerElapsedTime_ + MeleeAttackAction.StaticTime (playerUnit_) <= 1.0001f;
 	}
 
 	private Vector2 CalculateDirection () {

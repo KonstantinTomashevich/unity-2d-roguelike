@@ -4,8 +4,8 @@
 		armor="10" 
 		minAttack="10" 
 		maxAttack="20"
-		moveSpeed="6"
-		attackSpeed="3"
+		moveSpeed="1"
+		attackSpeed="1"
 		/>
 
 	<orc 

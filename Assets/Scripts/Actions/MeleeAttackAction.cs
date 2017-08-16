@@ -33,7 +33,13 @@ public class MeleeAttackAction : IUnitAction {
 
 	public float time { 
 		get {
-			return 1.0f / unit_.attackSpeed;
+			return StaticTime (unit_);
+		}
+	}
+
+	public IUnit unit {
+		get {
+			return unit_;
 		}
 	}
 
@@ -48,9 +54,7 @@ public class MeleeAttackAction : IUnitAction {
 		}
 	}
 
-	public IUnit unit {
-		get {
-			return unit_;
-		}
+	public static float StaticTime (IUnit unit) {
+		return 1.0f / unit.attackSpeed;
 	}
 }

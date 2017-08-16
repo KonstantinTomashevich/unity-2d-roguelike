@@ -159,7 +159,6 @@ public class UnitsManager : MonoBehaviour {
 
 	void NextTurnRequest () {
 		if (!isProcessingTurn_) {
-			Debug.Log ("XXX");
 			currentProcessingUnitIndex_ = 0;
 			currentProcessingAction_ = null;
 			currentProcessingElapsedTime_ = 0.0f;
