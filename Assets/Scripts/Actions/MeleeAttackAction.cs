@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MeleeAttackAction : IAction {
+public class MeleeAttackAction : IUnitAction {
 	private IUnit unit_;
 	private Vector2 direction_;
 
@@ -45,6 +45,12 @@ public class MeleeAttackAction : IAction {
 			return unitsManager.GetUnitOnTile (unit.position + direction) != null;
 		} else {
 			return false;
+		}
+	}
+
+	public IUnit unit {
+		get {
+			return unit_;
 		}
 	}
 }

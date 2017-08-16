@@ -158,15 +158,17 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	void NextTurnRequest () {
-		Debug.Log ("XXX");
-		currentProcessingUnitIndex_ = 0;
-		currentProcessingAction_ = null;
-		currentProcessingElapsedTime_ = 0.0f;
+		if (!isProcessingTurn_) {
+			Debug.Log ("XXX");
+			currentProcessingUnitIndex_ = 0;
+			currentProcessingAction_ = null;
+			currentProcessingElapsedTime_ = 0.0f;
 
-		isProcessingTurn_ = true;
-		immediateActionsQueue_.Clear ();
-		immediateActionsElapsedTime_ = 0.0f;
-		ProcessNextUnitTurn ();
+			isProcessingTurn_ = true;
+			immediateActionsQueue_.Clear ();
+			immediateActionsElapsedTime_ = 0.0f;
+			ProcessNextUnitTurn ();
+		}
 	}
 
 	void AllAnimationsFinished () {
@@ -282,6 +284,11 @@ public class UnitsManager : MonoBehaviour {
 	private void ProcessImmediateAction () {
 		IAction action = immediateActionsQueue_ [0];
 		action.Commit (map, this, itemsManager);
+		if (action is IUnitAction) {
+			IUnit unit = (action as IUnitAction).unit;
+			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+		}
+
 		immediateActionsQueue_.RemoveAt (0);
 		MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionFinished", action);
 		SetupNextImmediateAction ();
@@ -303,6 +310,9 @@ public class UnitsManager : MonoBehaviour {
 			}
 		} else {
 			MessageUtils.SendMessageToObjectsWithTag (tag, "AllImmediateActionsFinished", null);
+			if (immediateActionsElapsedTime_ >= 1.0f) {
+				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionsMaxTimeReached", null);
+			}
 		}
 	}
 }

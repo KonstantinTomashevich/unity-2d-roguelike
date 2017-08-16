@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveAction : IAction {
+public class MoveAction : IUnitAction {
 	private IUnit unit_;
 	private Vector2 direction_;
 
@@ -45,6 +45,12 @@ public class MoveAction : IAction {
 			return unitsManager.GetUnitOnTile (newPosition) == null && tile != null && tile.passable;
 		} else {
 			return false;
+		}
+	}
+
+	public IUnit unit {
+		get {
+			return unit_;
 		}
 	}
 }
