@@ -47,6 +47,15 @@ public class FollowingCamera : MonoBehaviour {
 		isInTurn_ = false;
 	}
 
+	void ImmediateActionStart (IAction action) {
+		scrollingToUnit_ = true;
+		isInTurn_ = true;
+	}
+
+	void AllImmediateActionsFinished () {
+		isInTurn_ = false;
+	}
+
 	public IUnit followingUnit {
 		get {
 			return followingUnit_;

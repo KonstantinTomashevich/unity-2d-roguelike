@@ -14,9 +14,11 @@ public class SelectionInput : MonoBehaviour {
 
 	private PlayerUnit playerUnit_;
 	private bool isProcessingTurn_;
+	private float playerElapsedTime_;
 
 	void Start () {
 		isProcessingTurn_ = false;
+		playerElapsedTime_ = 0.0f;
 	}
 
 	void Update () {
@@ -30,7 +32,6 @@ public class SelectionInput : MonoBehaviour {
 		if (isProcessingTurn_ || playerUnit_ == null) {
 			spriteRenderer.color = disabledColor;
 		} else {
-			
 			Vector2 direction = CalculateDirection ();
 			if (MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
 				spriteRenderer.color = moveColor;
@@ -48,24 +49,33 @@ public class SelectionInput : MonoBehaviour {
 
 	void NextTurnRequest () {
 		isProcessingTurn_ = true;
+		playerElapsedTime_ = 0.0f;
 	}
 
 	void TurnFinished () {
 		isProcessingTurn_ = false;
 	}
 
+	void AllImmediateActionsFinished () {
+		isProcessingTurn_ = false;;
+	}
+
+	void ImmediateActionsMaxTimeReached () {
+		MessageUtils.SendMessageToObjectsWithTag (tag, "NextTurnRequest", null);
+	}
+
+	void ImmediateActionStart (IAction action) {
+		isProcessingTurn_ = true;
+	}
+
 	void ScreenPressed () {
 		if (playerUnit_ != null && !isProcessingTurn_) {
 			Vector2 direction = CalculateDirection ();
 			if (MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
-				playerUnit_.AddAction (new MoveAction (playerUnit_, direction));
+				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MoveAction (playerUnit_, direction));
 
 			} else if (MeleeAttackAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction)) {
-				playerUnit_.AddAction (new MeleeAttackAction (playerUnit_, direction));
-			}
-
-			if (playerUnit_.CalculateActionsTime () >= 1.0f) {
-				MessageUtils.SendMessageToObjectsWithTag (tag, "NextTurnRequest", null);
+				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MeleeAttackAction (playerUnit_, direction));
 			}
 		}
 	}

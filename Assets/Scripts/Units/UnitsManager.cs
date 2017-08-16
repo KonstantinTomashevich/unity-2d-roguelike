@@ -11,9 +11,15 @@ public class UnitsManager : MonoBehaviour {
 	private Dictionary <int, GameObject> unitsSprites_;
 	private Dictionary <string, UnitTypeData> unitsTypesData_;
 
+	private bool isProcessingTurn_;
+	private List <IAction> immediateActionsQueue_;
+	private float immediateActionsElapsedTime_;
+
 	private int currentProcessingUnitIndex_;
 	private IAction currentProcessingAction_;
 	private float currentProcessingElapsedTime_;
+
+
 
 	public UnitsManager () {
 		unitsTypesData_ = new Dictionary <string, UnitTypeData> ();
@@ -25,6 +31,10 @@ public class UnitsManager : MonoBehaviour {
 	void Start () {
 		units_ = new Dictionary <int, IUnit> ();
 		unitsSprites_ = new Dictionary <int, GameObject> ();
+
+		isProcessingTurn_ = false;
+		immediateActionsQueue_ = new List <IAction> ();
+		immediateActionsElapsedTime_ = 0.0f;
 
 		currentProcessingAction_ = null;
 		currentProcessingUnitIndex_ = -1;
@@ -148,14 +158,32 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	void NextTurnRequest () {
+		Debug.Log ("XXX");
 		currentProcessingUnitIndex_ = 0;
 		currentProcessingAction_ = null;
 		currentProcessingElapsedTime_ = 0.0f;
+
+		isProcessingTurn_ = true;
+		immediateActionsQueue_.Clear ();
+		immediateActionsElapsedTime_ = 0.0f;
 		ProcessNextUnitTurn ();
 	}
 
 	void AllAnimationsFinished () {
-		ProcessCurrentActionAndStartNext ();
+		if (isProcessingTurn_) {
+			ProcessCurrentActionAndStartNext ();
+		} else {
+			ProcessImmediateAction ();
+		}
+	}
+
+	void ImmediateActionRequest (IAction action) {
+		if (!isProcessingTurn_ && immediateActionsElapsedTime_ <= 1.0f) {
+			immediateActionsQueue_.Add (action);
+			if (immediateActionsQueue_.Count == 1) {
+				SetupNextImmediateAction ();
+			}
+		}
 	}
 
 	private void ProcessNextUnitTurn () {
@@ -174,6 +202,7 @@ public class UnitsManager : MonoBehaviour {
 			SetupNextAction ();
 
 		} else {
+			isProcessingTurn_ = false;
 			MessageUtils.SendMessageToObjectsWithTag (tag, "TurnFinished", null);
 		}
 	}
@@ -247,6 +276,33 @@ public class UnitsManager : MonoBehaviour {
 		if (currentProcessingUnitIndex_ > 0) {
 			IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_ - 1);
 			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+		}
+	}
+
+	private void ProcessImmediateAction () {
+		IAction action = immediateActionsQueue_ [0];
+		action.Commit (map, this, itemsManager);
+		immediateActionsQueue_.RemoveAt (0);
+		MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionFinished", action);
+		SetupNextImmediateAction ();
+	}
+
+	private void SetupNextImmediateAction () {
+		if (immediateActionsQueue_.Count > 0) {
+			IAction action = immediateActionsQueue_ [0];
+			immediateActionsElapsedTime_ += action.time;
+
+			if (immediateActionsElapsedTime_ > 1.0f) {
+				immediateActionsQueue_.Clear ();
+				MessageUtils.SendMessageToObjectsWithTag (tag, "AllImmediateActionsFinished", null);
+				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionsMaxTimeReached", null);
+
+			} else {
+				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionStart", action);
+				action.SetupAnimations (tag, map, this, itemsManager);
+			}
+		} else {
+			MessageUtils.SendMessageToObjectsWithTag (tag, "AllImmediateActionsFinished", null);
 		}
 	}
 }
