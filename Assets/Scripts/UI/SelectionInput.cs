@@ -14,11 +14,15 @@ public class SelectionInput : MonoBehaviour {
 
 	private PlayerUnit playerUnit_;
 	private bool isProcessingTurn_;
+	private bool cursorShouldBeUpdated_;
 	private float playerElapsedTime_;
+	private Vector2 lastCursorPosition_;
 
 	void Start () {
 		isProcessingTurn_ = false;
 		playerElapsedTime_ = 0.0f;
+		cursorShouldBeUpdated_ = true;
+		lastCursorPosition_ = new Vector2 (transform.position.x, transform.position.y);
 	}
 
 	void Update () {
@@ -31,14 +35,39 @@ public class SelectionInput : MonoBehaviour {
 		SpriteRenderer spriteRenderer = gameObject.GetComponent <SpriteRenderer> ();
 		if (isProcessingTurn_ || playerUnit_ == null) {
 			spriteRenderer.color = disabledColor;
+			cursorShouldBeUpdated_ = true;
+
 		} else {
-			Vector2 direction = CalculateDirection ();
-			if (CanMove (direction)) {
-				spriteRenderer.color = moveColor;
-			} else if (CanAttack (direction)) {
-				spriteRenderer.color = attackColor;
-			} else {
-				spriteRenderer.color = disabledColor;
+			Vector2 cursorPosition = new Vector2 (transform.position.x, transform.position.y);
+			if (!cursorPosition.Equals (lastCursorPosition_) || cursorShouldBeUpdated_) {
+				lastCursorPosition_ = cursorPosition;
+				cursorShouldBeUpdated_ = false;
+
+				if (Map.HeuristicDistance (playerUnit_.position, lastCursorPosition_) <= playerUnit_.moveSpeed &&
+					lastCursorPosition_ != playerUnit_.position) {
+
+					bool isTileWithEnemy = unitsManager.GetUnitOnTile (cursorPosition) != null;
+					List <Vector2> path = map.FindPath (playerUnit_.position, cursorPosition, isTileWithEnemy);
+					if (path.Count > 0) {
+						path.RemoveAt (0);
+
+						float time = playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) * path.Count;
+						if (isTileWithEnemy) {
+							time += MeleeAttackAction.StaticTime (playerUnit_);
+						}
+
+						if (time <= 1.0f) {
+							spriteRenderer.color = isTileWithEnemy ? attackColor : moveColor;
+						} else {
+							spriteRenderer.color = disabledColor;
+						}
+
+					} else {
+						spriteRenderer.color = disabledColor;
+					}
+				} else {
+					spriteRenderer.color = disabledColor;
+				}
 			}
 		}
 	}
@@ -79,27 +108,29 @@ public class SelectionInput : MonoBehaviour {
 
 	void ScreenPressed () {
 		if (playerUnit_ != null && !isProcessingTurn_) {
-			Vector2 direction = CalculateDirection ();
-			if (CanMove (direction)) {
-				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MoveAction (playerUnit_, direction));
+			
+			Vector2 cursorPosition = new Vector2 (transform.position.x, transform.position.y);
+			bool isTileWithEnemy = unitsManager.GetUnitOnTile (cursorPosition) != null;
+			List <Vector2> path = map.FindPath (playerUnit_.position, cursorPosition, isTileWithEnemy);
 
-			} else if (CanAttack (direction)) {
-				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MeleeAttackAction (playerUnit_, direction));
+			if (path.Count > 0) {
+				path.RemoveAt (0);
+			}
+
+			float time = playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) * path.Count;
+			if (time <= 1.0f) {
+				Vector2 previous = playerUnit_.position;
+				foreach (Vector2 step in path) {
+					Vector2 direction = step - previous;
+					previous = step;
+					MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MoveAction (playerUnit_, direction));
+				}
+
+				if (isTileWithEnemy) {
+					Vector2 direction = cursorPosition - previous;
+					MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MeleeAttackAction (playerUnit_, direction));
+				}
 			}
 		}
-	}
-
-	private bool CanMove (Vector2 direction) {
-		return MoveAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction) &&
-			playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) <= 1.0001f;
-	}
-
-	private bool CanAttack (Vector2 direction) {
-		return MeleeAttackAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, direction) &&
-			playerElapsedTime_ + MeleeAttackAction.StaticTime (playerUnit_) <= 1.0001f;
-	}
-
-	private Vector2 CalculateDirection () {
-		return (new Vector2 (transform.position.x, transform.position.y)) - playerUnit_.position;
 	}
 }
