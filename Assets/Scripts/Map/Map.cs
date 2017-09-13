@@ -81,10 +81,9 @@ public class Map : MonoBehaviour {
 				foreach  (Vector2 neighbor in neighbors ) {
 					Tile tile = GetTile (neighbor);
 					if (tile != null && (tile.passable || (findPathToAttack && neighbor.Equals (endPosition))) &&
+						(unitsManager.GetUnitOnTile (neighbor) == null || (findPathToAttack && neighbor.Equals (endPosition))) &&
 					    (!costSoFar.ContainsKey (neighbor) || costSoFar [neighbor] > costToThisTile + 1)) {
-						uint heuristicDistance = (uint)Mathf.RoundToInt (1000.0f * Mathf.Sqrt (
-							(neighbor.x - endPosition.x) * (neighbor.x - endPosition.x) +
-							(neighbor.y - endPosition.y) * (neighbor.y - endPosition.y)));
+						uint heuristicDistance = (uint) Mathf.RoundToInt (1000.0f * HeuristicDistance (neighbor, endPosition));
 						
 						while (frontier.ContainsKey (heuristicDistance + (costToThisTile + 1) * 1000)) {
 							heuristicDistance++;
@@ -286,5 +285,11 @@ public class Map : MonoBehaviour {
 				unitsManager.ProcessXmlSpawner (xml);
 			}
 		}
+	}
+
+	static public float HeuristicDistance (Vector2 first, Vector2 second) {
+		return Mathf.Sqrt (
+			(first.x - second.x) * (first.x - second.x) +
+			(first.y - second.y) * (first.y - second.y));
 	}
 }
