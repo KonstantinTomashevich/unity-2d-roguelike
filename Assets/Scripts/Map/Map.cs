@@ -44,6 +44,64 @@ public class Map : MonoBehaviour {
 		}
 	}
 
+	public List <Vector2> FindPath (Vector2 startPosition, Vector2 endPosition, bool findPathToAttack = false) {
+		SortedList <uint, Vector2> frontier = new SortedList <uint, Vector2> ();
+		Dictionary <Vector2, Vector2> cameFrom = new Dictionary <Vector2, Vector2> ();
+		Dictionary <Vector2, uint> costSoFar = new Dictionary <Vector2, uint> ();
+
+		frontier [0] = startPosition;
+		cameFrom [startPosition] = startPosition;
+		costSoFar [startPosition] = 0;
+
+		while (frontier.Count > 0) {
+			Vector2 next = frontier.Values [0];
+			uint costToThisTile = costSoFar [next];
+			frontier.RemoveAt (0);
+
+			if (next.Equals (endPosition)) {
+
+				List <Vector2> path = new List <Vector2> ();
+				Vector2 scanPosition = next;
+				path.Insert (0, scanPosition);
+
+				do {
+					scanPosition = cameFrom [scanPosition];
+					path.Insert (0, scanPosition);
+				} while (scanPosition != startPosition);
+
+				if (findPathToAttack) {
+					path.Remove (endPosition);
+				}
+				return path;
+
+			} else {
+				Vector2[] neighbors = { next + Vector2.up, next + Vector2.down,
+					next + Vector2.right, next + Vector2.left};
+
+				foreach  (Vector2 neighbor in neighbors ) {
+					Tile tile = GetTile (neighbor);
+					if (tile != null && (tile.passable || (findPathToAttack && neighbor.Equals (endPosition))) &&
+					    (!costSoFar.ContainsKey (neighbor) || costSoFar [neighbor] > costToThisTile + 1)) {
+						uint heuristicDistance = (uint)Mathf.RoundToInt (1000.0f * Mathf.Sqrt (
+							(neighbor.x - endPosition.x) * (neighbor.x - endPosition.x) +
+							(neighbor.y - endPosition.y) * (neighbor.y - endPosition.y)));
+						
+						while (frontier.ContainsKey (heuristicDistance + (costToThisTile + 1) * 1000)) {
+							heuristicDistance++;
+						}
+
+						frontier [heuristicDistance + (costToThisTile + 1) * 1000] = neighbor;
+						costSoFar [neighbor] = costToThisTile + 1;
+						cameFrom [neighbor] = next;
+					}
+				}
+			}
+		}
+
+		// Path not found.
+		return new List <Vector2> ();
+	}
+
 	public Tile GetTile (int x, int y) {
 		if (x < 0 || y < 0 || x >= tiles_.Length || y >= tiles_ [0].Length) {
 			return null;
