@@ -113,17 +113,24 @@ public class UnitsManager : MonoBehaviour {
 		return GetUnitSpriteById (unit.id);
 	}
 
-	public PlayerUnit SpawnPlayerFromXml (XmlNode xml) {
+	public PlayerUnit SpawnPlayerFromXml (XmlNode xml, bool updateVisionMap = true) {
 		PlayerUnit playerUnit = SpawnUnitFromXml <PlayerUnit> (xml, (unitType, health) => new PlayerUnit (health));
 		MessageUtils.SendMessageToObjectsWithTag (tag, "PlayerUnitCreated", playerUnit);
-		playerUnit.UpdateVisionMap (map);
+
+		if (updateVisionMap) {
+			playerUnit.UpdateVisionMap (map);
+		}
+
 		SetVisionMapProviderUnit (playerUnit);
 		return playerUnit;
 	}
 
-	public AiUnit SpawnAiUnitFromXml (XmlNode xml) {
-		AiUnit unit = SpawnUnitFromXml <AiUnit> (xml, (unitType, health) => new AiUnit (unitType, health));;
-		unit.UpdateVisionMap (map);
+	public AiUnit SpawnAiUnitFromXml (XmlNode xml, bool updateVisionMap = true) {
+		AiUnit unit = SpawnUnitFromXml <AiUnit> (xml, (unitType, health) => new AiUnit (unitType, health));
+
+		if (updateVisionMap) {
+			unit.UpdateVisionMap (map);
+		}
 		return unit;
 	}
 
@@ -150,9 +157,10 @@ public class UnitsManager : MonoBehaviour {
 				tile = map.GetTile (position);
 			} while (GetUnitOnTile (position) != null || tile == null || !tile.passable);
 
-			AiUnit unit = SpawnAiUnitFromXml (xml);
+			AiUnit unit = SpawnAiUnitFromXml (xml, false);
 			unit.position = position;
 			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+			unit.UpdateVisionMap (map);
 		}
 	}
 
