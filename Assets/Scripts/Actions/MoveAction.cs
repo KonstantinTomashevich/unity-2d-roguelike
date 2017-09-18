@@ -27,6 +27,7 @@ public class MoveAction : IUnitAction {
 
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		unit_.position = unit_.position + direction_;
+		unit.UpdateVisionMap (map);
 	}
 
 	public float time { 
