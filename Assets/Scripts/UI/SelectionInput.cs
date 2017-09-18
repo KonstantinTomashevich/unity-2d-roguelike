@@ -46,8 +46,10 @@ public class SelectionInput : MonoBehaviour {
 				if (Map.HeuristicDistance (playerUnit_.position, lastCursorPosition_) <= playerUnit_.moveSpeed &&
 					lastCursorPosition_ != playerUnit_.position) {
 
-					bool isTileWithEnemy = unitsManager.GetUnitOnTile (cursorPosition) != null;
+					IUnit unitOnTile = unitsManager.GetUnitOnTile (cursorPosition);
+					bool isTileWithEnemy = unitOnTile != null && unitOnTile != playerUnit_;
 					List <Vector2> path = map.FindPath (playerUnit_.position, cursorPosition, isTileWithEnemy);
+
 					if (path.Count > 0) {
 						path.RemoveAt (0);
 
@@ -110,25 +112,26 @@ public class SelectionInput : MonoBehaviour {
 		if (playerUnit_ != null && !isProcessingTurn_) {
 			
 			Vector2 cursorPosition = new Vector2 (transform.position.x, transform.position.y);
-			bool isTileWithEnemy = unitsManager.GetUnitOnTile (cursorPosition) != null;
+			IUnit unitOnTile = unitsManager.GetUnitOnTile (cursorPosition);
+			bool isTileWithEnemy = unitOnTile != null && unitOnTile != playerUnit_;
 			List <Vector2> path = map.FindPath (playerUnit_.position, cursorPosition, isTileWithEnemy);
 
-			if (path.Count > 0) {
+			if (path.Count > 1 || isTileWithEnemy) {
 				path.RemoveAt (0);
-			}
+				float time = playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) * path.Count;
 
-			float time = playerElapsedTime_ + MoveAction.StaticTime (playerUnit_) * path.Count;
-			if (time <= 1.0f) {
-				Vector2 previous = playerUnit_.position;
-				foreach (Vector2 step in path) {
-					Vector2 direction = step - previous;
-					previous = step;
-					MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MoveAction (playerUnit_, direction));
-				}
+				if (time <= 1.0f) {
+					Vector2 previous = playerUnit_.position;
+					foreach (Vector2 step in path) {
+						Vector2 direction = step - previous;
+						previous = step;
+						MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MoveAction (playerUnit_, direction));
+					}
 
-				if (isTileWithEnemy) {
-					Vector2 direction = cursorPosition - previous;
-					MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MeleeAttackAction (playerUnit_, direction));
+					if (isTileWithEnemy) {
+						Vector2 direction = cursorPosition - previous;
+						MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new MeleeAttackAction (playerUnit_, direction));
+					}
 				}
 			}
 		}
