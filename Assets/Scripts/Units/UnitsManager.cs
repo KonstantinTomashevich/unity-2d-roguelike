@@ -18,11 +18,11 @@ public class UnitsManager : MonoBehaviour {
 	private int currentProcessingUnitIndex_;
 	private IAction currentProcessingAction_;
 	private float currentProcessingElapsedTime_;
-
-
+	private IUnit visionMapProviderUnit_;
 
 	public UnitsManager () {
 		unitsTypesData_ = new Dictionary <string, UnitTypeData> ();
+		visionMapProviderUnit_ = null;
 	}
 
 	~UnitsManager () {
@@ -65,7 +65,9 @@ public class UnitsManager : MonoBehaviour {
 		unit.attackForce = unitTypeData.defaultAttackForce;
 		unit.moveSpeed = unitTypeData.defaultMoveSpeed;
 		unit.attackSpeed = unitTypeData.defaultAttackSpeed;
+		unit.visionRange = unitTypeData.defaultVisionRange;
 
+		unit.InitVisionMap (map.width, map.height);
 		SpriteRenderer spriteRenderer = spriteObject.AddComponent <SpriteRenderer> ();
 		spriteRenderer.sprite = unitTypeData.sprite;
 		spriteRenderer.drawMode = SpriteDrawMode.Sliced;
@@ -114,11 +116,15 @@ public class UnitsManager : MonoBehaviour {
 	public PlayerUnit SpawnPlayerFromXml (XmlNode xml) {
 		PlayerUnit playerUnit = SpawnUnitFromXml <PlayerUnit> (xml, (unitType, health) => new PlayerUnit (health));
 		MessageUtils.SendMessageToObjectsWithTag (tag, "PlayerUnitCreated", playerUnit);
+		playerUnit.UpdateVisionMap (map);
+		SetVisionMapProviderUnit (playerUnit);
 		return playerUnit;
 	}
 
 	public AiUnit SpawnAiUnitFromXml (XmlNode xml) {
-		return SpawnUnitFromXml <AiUnit> (xml, (unitType, health) => new AiUnit (unitType, health));;
+		AiUnit unit = SpawnUnitFromXml <AiUnit> (xml, (unitType, health) => new AiUnit (unitType, health));;
+		unit.UpdateVisionMap (map);
+		return unit;
 	}
 
 	public void ProcessXmlSpawner (XmlNode xml) {
@@ -150,6 +156,18 @@ public class UnitsManager : MonoBehaviour {
 		}
 	}
 
+	public void UpdateUnitsSpritesByVisionMap () {
+		if (visionMapProviderUnit_ != null) {
+			foreach (KeyValuePair <int, IUnit> unitPair in units_) {
+				IUnit unit = unitPair.Value;
+				Vector2 mapCoords = map.RealCoordsToMapCoords (unit.position);
+				unitsSprites_ [unitPair.Key].GetComponent <SpriteRenderer> ().enabled =
+					visionMapProviderUnit_.visionMap.GetPixel (
+					    Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR;
+			}
+		}
+	}
+
 	void LoadUnitsTypes (XmlNode rootNode) {
 		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
 		foreach (XmlNode node in rootNode.ChildNodes) {
@@ -176,6 +194,7 @@ public class UnitsManager : MonoBehaviour {
 		} else {
 			ProcessImmediateAction ();
 		}
+		UpdateUnitsSpritesByVisionMap ();
 	}
 
 	void ImmediateActionRequest (IAction action) {
@@ -313,5 +332,12 @@ public class UnitsManager : MonoBehaviour {
 				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionsMaxTimeReached", null);
 			}
 		}
+	}
+
+	private void SetVisionMapProviderUnit (IUnit unit) {
+		map.GetComponent <MeshRenderer> ().material.SetFloat ("_MapWidth", map.width);
+		map.GetComponent <MeshRenderer> ().material.SetFloat ("_MapHeight", map.height);
+		map.GetComponent <MeshRenderer> ().material.SetTexture ("_FogOfWar", unit.visionMap); 
+		visionMapProviderUnit_ = unit;;
 	}
 }
