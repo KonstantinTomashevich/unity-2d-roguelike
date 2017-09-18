@@ -12,7 +12,11 @@ public interface IUnit {
 	float attackSpeed { get; set; }
 	float moveSpeed { get; set; }
 	float armor { get; set; }
+	uint visionRange { get; set; }
+	Texture2D visionMap { get; }
 
 	void ApplyDamage (float damage);
 	IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
+	void InitVisionMap (int mapWidth, int mapHeight);
+	void UpdateVisionMap (Map map);
 }

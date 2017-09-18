@@ -9,6 +9,7 @@ public class UnitTypeData {
 	private Vector2 defaultAttackForce_;
 	private float defaultMoveSpeed_;
 	private float defaultAttackSpeed_;
+	private uint defaultVisionRange_;
 
 	public UnitTypeData (XmlNode xml, string spritesPathPrefix) {
 		sprite_ = Resources.Load <Sprite> (spritesPathPrefix + xml.Attributes ["sprite"].InnerText);
@@ -20,6 +21,7 @@ public class UnitTypeData {
 
 		defaultMoveSpeed_ = float.Parse (xml.Attributes ["moveSpeed"].InnerText);
 		defaultAttackSpeed_ = float.Parse (xml.Attributes ["attackSpeed"].InnerText);
+		defaultVisionRange_ = uint.Parse (xml.Attributes ["visionRange"].InnerText);
 	}
 
 	~UnitTypeData () {
@@ -54,5 +56,10 @@ public class UnitTypeData {
 			return defaultAttackSpeed_;
 		}
 	}
-}
 
+	public uint defaultVisionRange {
+		get {
+			return defaultVisionRange_;
+		}
+	}
+}

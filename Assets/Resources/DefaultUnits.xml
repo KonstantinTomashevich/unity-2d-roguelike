@@ -6,6 +6,7 @@
 		maxAttack="20"
 		moveSpeed="1"
 		attackSpeed="1"
+		visionRange="4"
 		/>
 
 	<orc 
@@ -15,5 +16,6 @@
 		maxAttack="30"
 		moveSpeed="1"
 		attackSpeed="1"
+		visionRange="3"
 		/>
 </unitsTypes>
