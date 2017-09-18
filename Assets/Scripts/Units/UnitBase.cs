@@ -21,8 +21,10 @@ public abstract class UnitBase : IUnit
 	private float attackSpeed_;
 	private float moveSpeed_;
 	private float armor_;
+
 	private uint visionRange_;
 	private Texture2D visionMap_;
+	private Dictionary <Vector2, uint> lastVisionMapUpdateVisibleTiles_;
 
 	public UnitBase (string unitType, float health = STANDART_UNIT_MAX_HEALTH)
 	{
@@ -35,8 +37,10 @@ public abstract class UnitBase : IUnit
 		attackSpeed_ = STANDART_ATTACK_SPEED;
 		moveSpeed_ = STANDART_MOVE_SPEED;
 		armor_ = 0.0f;
+
 		visionRange_ = STANDART_VISION_RANGE;
 		visionMap_ = null;
+		lastVisionMapUpdateVisibleTiles_ = new Dictionary <Vector2, uint> ();
 	}
 
 	~UnitBase ()
@@ -64,8 +68,8 @@ public abstract class UnitBase : IUnit
 	public void UpdateVisionMap (Map map)
 	{
 		ClearVisionMap ();
-		Dictionary <Vector2, uint> visibleTiles = GetVisibleTiles (map);
-		FillVisibleTiles (visibleTiles, map);
+		lastVisionMapUpdateVisibleTiles_ = GetVisibleTiles (map);
+		FillVisibleTiles (lastVisionMapUpdateVisibleTiles_, map);
 	}
 
 	private void ClearVisionMap ()
@@ -232,6 +236,12 @@ public abstract class UnitBase : IUnit
 	public Texture2D visionMap { 
 		get {
 			return visionMap_;
+		}
+	}
+
+	protected Dictionary <Vector2, uint> lastVisionMapUpdateVisibleTiles {
+		get {
+			return lastVisionMapUpdateVisibleTiles_;
 		}
 	}
 }
