@@ -137,6 +137,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 545121508}
   unitsManager: {fileID: 1308547836}
+  mainCamera: {fileID: 1362794758}
 --- !u!4 &246355110
 Transform:
   m_ObjectHideFlags: 0
@@ -284,6 +285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   unitsManager: {fileID: 1308547836}
   itemsManager: {fileID: 246355109}
+  mainCamera: {fileID: 1362794758}
   mapName: Test
   stoneWallColor: {r: 0.5882353, g: 0.5882353, b: 0.5882353, a: 1}
   stoneFloorColor: {r: 0.27450982, g: 0.27450982, b: 0.27450982, a: 1}
@@ -662,6 +664,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   map: {fileID: 545121508}
   itemsManager: {fileID: 246355109}
+  mainCamera: {fileID: 1362794758}
 --- !u!4 &1308547837
 Transform:
   m_ObjectHideFlags: 0

@@ -45,6 +45,12 @@ public class Map : MonoBehaviour {
 	}
 
 	public List <Vector2> FindPath (Vector2 startPosition, Vector2 endPosition, bool findPathToAttack = false) {
+		if (startPosition == endPosition) {
+			List <Vector2> path = new List <Vector2> ();
+			path.Add (startPosition);
+			return path;
+		}
+
 		SortedList <uint, Vector2> frontier = new SortedList <uint, Vector2> ();
 		Dictionary <Vector2, Vector2> cameFrom = new Dictionary <Vector2, Vector2> ();
 		Dictionary <Vector2, uint> costSoFar = new Dictionary <Vector2, uint> ();
@@ -106,6 +112,18 @@ public class Map : MonoBehaviour {
 			return null;
 		} else {
 			return tiles_ [x] [y];
+		}
+	}
+
+	public int width {
+		get {
+			return tiles_.Length;
+		}
+	}
+
+	public int height {
+		get {
+			return tiles_ [0].Length;
 		}
 	}
 
@@ -175,21 +193,26 @@ public class Map : MonoBehaviour {
 					tile.textureIndex = 2;
 					tile.passable = false;
 					tile.destructable = false;
+					tile.watchable = false;
 
 				} else if (color == stoneFloorColor) {
 					tile.textureIndex = 3;
 					tile.passable = true;
 					tile.destructable = false;
+					tile.watchable = true;
 
 				} else if (color == woodWallColor) {
 					tile.textureIndex = 0;
 					tile.passable = false;
 					tile.destructable = true;
+					tile.watchable = false;
 
 				} else if (color == woodFloorColor) {
 					tile.textureIndex = 1;
 					tile.passable = true;
 					tile.destructable = false;
+					tile.watchable = true;
+
 				} else {
 					Debug.LogError ("Unknown tile (" + x + "; " + y + ") with color: " + color.ToString ());
 				}
@@ -285,6 +308,7 @@ public class Map : MonoBehaviour {
 				unitsManager.ProcessXmlSpawner (xml);
 			}
 		}
+		unitsManager.UpdateUnitsSpritesByVisionMap ();
 	}
 
 	static public float HeuristicDistance (Vector2 first, Vector2 second) {
