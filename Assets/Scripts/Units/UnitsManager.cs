@@ -258,6 +258,21 @@ public class UnitsManager : MonoBehaviour {
 		if (xml.Attributes ["deltaArmor"] != null) {
 			unit.armor += float.Parse (xml.Attributes ["deltaArmor"].InnerText);
 		}
+
+		if (xml.Attributes ["deltaRegeneration"] != null) {
+			unit.regeneration += float.Parse (xml.Attributes ["deltaRegeneration"].InnerText);
+		}
+
+		if (xml.Attributes ["deltaVisionRange"] != null) {
+			int visionRange = (int) unit.visionRange;
+			visionRange += int.Parse (xml.Attributes ["deltaVisionRange"].InnerText);
+
+			if (visionRange < 1) {
+				visionRange = 1;
+			}
+
+			unit.visionRange = (uint) visionRange;
+		}
 		return unit;
 	}
 
