@@ -62,6 +62,7 @@ public class UnitsManager : MonoBehaviour {
 		Debug.Assert (unitTypeData != null);
 
 		unit.armor = unitTypeData.defaultArmor;
+		unit.regeneration = unitTypeData.defaultRegeneration;
 		unit.attackForce = unitTypeData.defaultAttackForce;
 		unit.moveSpeed = unitTypeData.defaultMoveSpeed;
 		unit.attackSpeed = unitTypeData.defaultAttackSpeed;
@@ -227,6 +228,7 @@ public class UnitsManager : MonoBehaviour {
 
 		if (unit != null) {
 			currentProcessingElapsedTime_ = 0.0f;
+			unit.TurnBegins ();
 			SetupNextAction ();
 
 		} else {

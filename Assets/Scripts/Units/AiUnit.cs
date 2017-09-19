@@ -14,17 +14,18 @@ public class AiUnit : UnitBase {
 	~AiUnit () {
 	}
 
+	public override void TurnBegins () {
+		base.TurnBegins ();
+		lastFindPathTarget_ = Vector2.zero;
+		lastFindPathResult_.Clear ();
+	}
+
 	public override IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		IAction action = AttackPlayerIfsItNear (map, unitsManager, itemsManager);
-
-		if (action != null) {
-			lastFindPathTarget_ = Vector2.zero;
-			lastFindPathResult_.Clear ();
-			return action;
-
-		} else {
-			return GoToPlayerIfItsVisible (map, unitsManager, itemsManager);
+		if (action == null) {
+			action = GoToPlayerIfItsVisible (map, unitsManager, itemsManager);
 		}
+		return action;
 	}
 
 	private IAction AttackPlayerIfsItNear (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {

@@ -6,6 +6,7 @@ using System.Xml;
 public class UnitTypeData {
 	private Sprite sprite_;
 	private float defaultArmor_;
+	private float defaultRegeneration_;
 	private Vector2 defaultAttackForce_;
 	private float defaultMoveSpeed_;
 	private float defaultAttackSpeed_;
@@ -14,6 +15,7 @@ public class UnitTypeData {
 	public UnitTypeData (XmlNode xml, string spritesPathPrefix) {
 		sprite_ = Resources.Load <Sprite> (spritesPathPrefix + xml.Attributes ["sprite"].InnerText);
 		defaultArmor_ = float.Parse (xml.Attributes ["armor"].InnerText);
+		defaultRegeneration_ = float.Parse (xml.Attributes ["regeneration"].InnerText);
 
 		defaultAttackForce_ = new Vector2 (
 			float.Parse (xml.Attributes ["minAttack"].InnerText),
@@ -36,6 +38,12 @@ public class UnitTypeData {
 	public float defaultArmor {
 		get {
 			return defaultArmor_;
+		}
+	}
+
+	public float defaultRegeneration {
+		get {
+			return defaultRegeneration_;
 		}
 	}
 

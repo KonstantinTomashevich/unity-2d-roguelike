@@ -15,6 +15,7 @@ public abstract class UnitBase : IUnit
 	private int id_;
 	private Vector2 position_;
 	private float health_;
+	private float regeneration_;
 	private string unitType_;
 
 	private Vector2 attackForce_;
@@ -32,6 +33,7 @@ public abstract class UnitBase : IUnit
 		unitType_ = unitType;
 		position_ = Vector2.zero;
 		health_ = health;
+		regeneration_ = 0.0f;
 
 		attackForce_ = Vector2.zero;
 		attackSpeed_ = STANDART_ATTACK_SPEED;
@@ -56,8 +58,14 @@ public abstract class UnitBase : IUnit
 		}
 	}
 
-	public abstract IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
+	public virtual void TurnBegins () {
+		health_ += regeneration_;
+		if (health_ > STANDART_UNIT_MAX_HEALTH) {
+			health_ = STANDART_UNIT_MAX_HEALTH;
+		}
+	}
 
+	public abstract IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
 	public void InitVisionMap (int mapWidth, int mapHeight)
 	{
 		visionMap_ = new Texture2D (mapWidth, mapHeight);
@@ -164,6 +172,16 @@ public abstract class UnitBase : IUnit
 			return health_; 
 		}
 
+	}
+
+	public float regeneration { 
+		get {
+			return regeneration_;
+		}
+
+		set {
+			regeneration_ = value;
+		}
 	}
 
 	public string unitType { 

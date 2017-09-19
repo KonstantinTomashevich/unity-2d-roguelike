@@ -2,6 +2,7 @@
 	<player 
 		sprite="knight" 
 		armor="10" 
+		regeneration="2"
 		minAttack="10" 
 		maxAttack="20"
 		moveSpeed="1"
@@ -12,6 +13,7 @@
 	<orc 
 		sprite="orc" 
 		armor="5" 
+		regeneration="1"
 		minAttack="5" 
 		maxAttack="30"
 		moveSpeed="1"

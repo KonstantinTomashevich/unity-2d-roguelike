@@ -6,6 +6,7 @@ public interface IUnit {
 	int id { get; set; }
 	Vector2 position { get; set; }
 	float health { get; }
+	float regeneration { get; set; }
 	string unitType { get; }
 
 	Vector2 attackForce { get; set; }
@@ -16,6 +17,7 @@ public interface IUnit {
 	Texture2D visionMap { get; }
 
 	void ApplyDamage (float damage);
+	void TurnBegins ();
 	IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
 	void InitVisionMap (int mapWidth, int mapHeight);
 	void UpdateVisionMap (Map map);
