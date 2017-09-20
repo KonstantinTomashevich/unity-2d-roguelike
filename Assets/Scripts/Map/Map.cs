@@ -165,7 +165,7 @@ public class Map : MonoBehaviour {
 
 	private bool LoadMap () {
 		mapXml_ = new XmlDocument ();
-		mapXml_.Load (Application.dataPath + "/Resources/Maps/" + mapName + "/Map.xml");
+		mapXml_.LoadXml ((Resources.Load ("Maps/" + mapName + "/Map") as TextAsset).text);
 		XmlNode root = mapXml_.DocumentElement;
 
 		XmlNode tilesInfoNode = root ["tiles"];
@@ -273,12 +273,12 @@ public class Map : MonoBehaviour {
 		} else if (type.Equals ("file")) {
 			string fileName = unitsTypesNode.Attributes ["file"].InnerText;
 			XmlDocument unitsTypesDocument = new XmlDocument ();
-			unitsTypesDocument.Load (Application.dataPath + "/Resources/Maps/" + mapName + "/" + fileName);
+			unitsTypesDocument.LoadXml ((Resources.Load ("Maps/" + mapName + "/" + fileName) as TextAsset).text);
 			nodeToLoad = unitsTypesDocument.DocumentElement;
 
 		} else {
 			XmlDocument unitsTypesDocument = new XmlDocument ();
-			unitsTypesDocument.Load (Application.dataPath + "/Resources/DefaultUnits.xml");
+			unitsTypesDocument.LoadXml ((Resources.Load ("DefaultUnits") as TextAsset).text);
 			nodeToLoad = unitsTypesDocument.DocumentElement;
 		}
 		MessageUtils.SendMessageToObjectsWithTag (tag, "LoadUnitsTypes", nodeToLoad);
