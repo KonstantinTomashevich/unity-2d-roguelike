@@ -78,6 +78,12 @@ public class SelectionInput : MonoBehaviour {
 		playerUnit_ = unit;
 	}
 
+	void UnitDie (IUnit unit) {
+		if (playerUnit_ == unit) {
+			playerUnit_ = null;
+		}
+	}
+
 	void NextTurnRequest () {
 		isProcessingTurn_ = true;
 		playerElapsedTime_ = 0.0f;
