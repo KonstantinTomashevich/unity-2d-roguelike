@@ -76,8 +76,12 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public bool RemoveUnit (int id) {
-		bool exists = units_.Remove (id) && unitsSprites_.ContainsKey (id);
+		bool exists = units_.ContainsKey (id) && unitsSprites_.ContainsKey (id);
 		if (exists) {
+			IUnit unit = units_ [id];
+			MessageUtils.SendMessageToObjectsWithTag (tag, "UnitDie", unit);
+			units_.Remove (id);
+
 			GameObject spriteObject = unitsSprites_ [id];
 			unitsSprites_.Remove (id);
 			Destroy (spriteObject);
@@ -218,9 +222,22 @@ public class UnitsManager : MonoBehaviour {
 	private void ProcessNextUnitTurn () {
 		CorrectPreviousUnitSpritePosition ();
 		IUnit unit = null;
+
+		for (int index = 0; index < units_.Count; index++) {
+			IUnit scanningUnit = GetUnitByIndex (index);
+			if (scanningUnit.health <= 0.0f) {
+				RemoveUnit (scanningUnit.id);
+
+				if (index < currentProcessingUnitIndex_) {
+					currentProcessingUnitIndex_--;
+				}
+			}
+		}
+
 		while (currentProcessingUnitIndex_ < units_.Count && unit == null) {
 			unit = GetUnitByIndex (currentProcessingUnitIndex_);
 			if (unit.health <= 0.0f) {
+
 				RemoveUnit (unit.id);
 				unit = null;
 			}
@@ -280,8 +297,10 @@ public class UnitsManager : MonoBehaviour {
 		currentProcessingAction_.Commit (map, this, itemsManager);
 		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
 		if (unit.health <= 0.0f) {
+
 			RemoveUnit (unit.id);
 			ProcessNextUnitTurn ();
+
 		} else {
 			SetupNextAction ();
 		}
