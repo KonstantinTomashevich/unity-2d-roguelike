@@ -64,7 +64,6 @@ public class AiUnit : UnitBase {
 		if (playerUnit != null) {
 			Vector2 direction = playerUnit.position - position;
 			if (direction.magnitude == 1.0f) {
-				Debug.Log ("Attack: " + (BASIC_ATTACK_PLAYER_IF_ITS_NEAR_POINTS - playerUnit.health));
 				actions.Add (BASIC_ATTACK_PLAYER_IF_ITS_NEAR_POINTS - playerUnit.health, new MeleeAttackAction (this, direction));
 			}
 		}
@@ -95,7 +94,6 @@ public class AiUnit : UnitBase {
 
 		if (playerUnit != null) {
 			float runAwayPoints = BASIC_RUN_AWAY_POINTS - health;
-			Debug.Log ("Run away: " + (runAwayPoints));
 			Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
 			foreach (Vector2 direction in directions) {
