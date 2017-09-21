@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AiUnit : UnitBase {
+	public const float BASIC_ATTACK_PLAYER_IF_ITS_NEAR_POINTS = 200.0f;
+	public const float BASIC_GO_TO_PLAYER_POINTS = 100.0f;
+
 	private Vector2 lastFindPathTarget_;
 	private List <Vector2> lastFindPathResult_;
 
@@ -21,25 +24,27 @@ public class AiUnit : UnitBase {
 	}
 
 	public override IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
-		IAction action = AttackPlayerIfsItNear (map, unitsManager, itemsManager);
-		if (action == null) {
-			action = GoToPlayerIfItsVisible (map, unitsManager, itemsManager);
-		}
-		return action;
+		SortedList <float, IAction> actions = new SortedList <float, IAction> ();
+		actions.Add (0.0f, null);
+
+		AddAttackPlayerIfsItNearAction (map, unitsManager, itemsManager, actions);
+		AddGoToPlayerIfItsVisibleAction (map, unitsManager, itemsManager, actions);
+		return actions.Values [actions.Count - 1];
 	}
 
-	private IAction AttackPlayerIfsItNear (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+	private void AddAttackPlayerIfsItNearAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager, SortedList <float, IAction> actions) {
 		Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 		foreach (Vector2 direction in directions) {
 			IUnit unit = unitsManager.GetUnitOnTile (position + direction);
+
 			if (unit != null && unit.unitType.Equals ("player")) {
-				return new MeleeAttackAction (this, direction);
+				actions.Add (BASIC_ATTACK_PLAYER_IF_ITS_NEAR_POINTS - unit.health, new MeleeAttackAction (this, direction));
+				return;
 			}
 		}
-		return null;
 	}
 
-	private IAction GoToPlayerIfItsVisible (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+	private void AddGoToPlayerIfItsVisibleAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager, SortedList <float, IAction> actions) {
 		IUnit player = null;
 		if (lastFindPathResult_.Count > 0) {
 			player = unitsManager.GetUnitOnTile (lastFindPathTarget_);
@@ -67,10 +72,10 @@ public class AiUnit : UnitBase {
 		if (lastFindPathResult_.Count > 1) {
 			Vector2 direction = lastFindPathResult_ [1] - lastFindPathResult_ [0];
 			lastFindPathResult_.RemoveAt (0);
-			return new MoveAction (this, direction);
+			actions.Add (BASIC_GO_TO_PLAYER_POINTS * (1.0f - lastFindPathResult_.Count / visionRange), new MoveAction (this, direction));
 
 		} else {
-			return null;
+			return;
 		}
 	}
 }
