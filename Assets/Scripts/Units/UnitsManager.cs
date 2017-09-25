@@ -8,7 +8,7 @@ public class UnitsManager : MonoBehaviour {
 	public ItemsManager itemsManager;
 
 	private Dictionary <int, IUnit> units_;
-	private Dictionary <int, GameObject> unitsSprites_;
+	private Dictionary <int, GameObject> unitsObjects_;
 	private Dictionary <string, UnitTypeData> unitsTypesData_;
 
 	private bool isProcessingTurn_;
@@ -30,7 +30,7 @@ public class UnitsManager : MonoBehaviour {
 
 	void Start () {
 		units_ = new Dictionary <int, IUnit> ();
-		unitsSprites_ = new Dictionary <int, GameObject> ();
+		unitsObjects_ = new Dictionary <int, GameObject> ();
 
 		isProcessingTurn_ = false;
 		immediateActionsQueue_ = new List <IAction> ();
@@ -56,7 +56,7 @@ public class UnitsManager : MonoBehaviour {
 		GameObject spriteObject = new GameObject ("unit" + id);
 		spriteObject.transform.SetParent (transform);
 		spriteObject.transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
-		unitsSprites_.Add (id, spriteObject);
+		unitsObjects_.Add (id, spriteObject);
 
 		UnitTypeData unitTypeData = unitsTypesData_ [unit.unitType];
 		Debug.Assert (unitTypeData != null);
@@ -76,14 +76,14 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public bool RemoveUnit (int id) {
-		bool exists = units_.ContainsKey (id) && unitsSprites_.ContainsKey (id);
+		bool exists = units_.ContainsKey (id) && unitsObjects_.ContainsKey (id);
 		if (exists) {
 			IUnit unit = units_ [id];
 			MessageUtils.SendMessageToObjectsWithTag (tag, "UnitDie", unit);
 			units_.Remove (id);
 
-			GameObject spriteObject = unitsSprites_ [id];
-			unitsSprites_.Remove (id);
+			GameObject spriteObject = unitsObjects_ [id];
+			unitsObjects_.Remove (id);
 			Destroy (spriteObject);
 		}
 		return exists;
@@ -106,16 +106,16 @@ public class UnitsManager : MonoBehaviour {
 		return null;
 	}
 
-	public GameObject GetUnitSpriteById (int id) {
-		if (unitsSprites_.ContainsKey (id)) {
-			return unitsSprites_ [id];
+	public GameObject GetUnitObjectById (int id) {
+		if (unitsObjects_.ContainsKey (id)) {
+			return unitsObjects_ [id];
 		} else {
 			return null;
 		}
 	}
 
-	public GameObject GetUnitSprite (IUnit unit) {
-		return GetUnitSpriteById (unit.id);
+	public GameObject GetUnitObject (IUnit unit) {
+		return GetUnitObjectById (unit.id);
 	}
 
 	public PlayerUnit SpawnPlayerFromXml (XmlNode xml, bool updateVisionMap = true) {
@@ -137,7 +137,7 @@ public class UnitsManager : MonoBehaviour {
 			unit.UpdateVisionMap (map);
 		}
 
-		GameObject unitObject = unitsSprites_ [unit.id];
+		GameObject unitObject = unitsObjects_ [unit.id];
 		GameObject textObject = new GameObject ("infoText");
 		textObject.transform.SetParent (unitObject.transform);
 		textObject.transform.localPosition = new Vector3 (0.0f, 0.5f, 0.0f);
@@ -175,7 +175,7 @@ public class UnitsManager : MonoBehaviour {
 
 			AiUnit unit = SpawnAiUnitFromXml (xml, false);
 			unit.position = position;
-			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 			unit.UpdateVisionMap (map);
 		}
 	}
@@ -185,7 +185,7 @@ public class UnitsManager : MonoBehaviour {
 			foreach (KeyValuePair <int, IUnit> unitPair in units_) {
 				IUnit unit = unitPair.Value;
 				Vector2 mapCoords = map.RealCoordsToMapCoords (unit.position);
-				unitsSprites_ [unitPair.Key].SetActive (visionMapProviderUnit_.visionMap.GetPixel (
+				unitsObjects_ [unitPair.Key].SetActive (visionMapProviderUnit_.visionMap.GetPixel (
 						Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR);
 			}
 		}
@@ -349,7 +349,7 @@ public class UnitsManager : MonoBehaviour {
 	private void CorrectPreviousUnitSpritePosition () {
 		if (currentProcessingUnitIndex_ > 0) {
 			IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_ - 1);
-			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 		}
 	}
 
@@ -358,7 +358,7 @@ public class UnitsManager : MonoBehaviour {
 		action.Commit (map, this, itemsManager);
 		if (action is IUnitAction) {
 			IUnit unit = (action as IUnitAction).unit;
-			unitsSprites_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
+			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 		}
 
 		immediateActionsQueue_.RemoveAt (0);

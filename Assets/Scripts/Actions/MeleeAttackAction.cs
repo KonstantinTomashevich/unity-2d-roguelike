@@ -22,7 +22,7 @@ public class MeleeAttackAction : IUnitAction {
 
 	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
-			new MeleeAttackAnimation (unitsManager.GetUnitSprite (unit_), direction_));
+			new MeleeAttackAnimation (unitsManager.GetUnitObject (unit_), direction_));
 	}
 
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
@@ -30,7 +30,7 @@ public class MeleeAttackAction : IUnitAction {
 		IUnit attacked = unitsManager.GetUnitOnTile (attackPosition);
 		attacked.ApplyDamage (Random.Range (unit_.attackForce.x, unit_.attackForce.y));
 
-		GameObject attackedUnitObject = unitsManager.GetUnitSprite (attacked);
+		GameObject attackedUnitObject = unitsManager.GetUnitObject (attacked);
 		TextMesh attackedUnitText = attackedUnitObject.transform.GetComponentInChildren <TextMesh> ();
 		if (attackedUnitText != null) {
 			attackedUnitText.text = attacked.unitType + ": " + Mathf.FloorToInt (attacked.health) + " HP";

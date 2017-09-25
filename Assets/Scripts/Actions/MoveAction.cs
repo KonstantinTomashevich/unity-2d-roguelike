@@ -22,7 +22,7 @@ public class MoveAction : IUnitAction {
 
 	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
 		MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
-			new MoveAnimation (unitsManager.GetUnitSprite (unit_), direction_));
+			new MoveAnimation (unitsManager.GetUnitObject (unit_), direction_));
 	}
 
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
