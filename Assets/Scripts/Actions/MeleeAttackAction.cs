@@ -29,6 +29,12 @@ public class MeleeAttackAction : IUnitAction {
 		Vector2 attackPosition = unit_.position + direction_;
 		IUnit attacked = unitsManager.GetUnitOnTile (attackPosition);
 		attacked.ApplyDamage (Random.Range (unit_.attackForce.x, unit_.attackForce.y));
+
+		GameObject attackedUnitObject = unitsManager.GetUnitSprite (attacked);
+		TextMesh attackedUnitText = attackedUnitObject.transform.GetComponentInChildren <TextMesh> ();
+		if (attackedUnitText != null) {
+			attackedUnitText.text = attacked.unitType + ": " + Mathf.FloorToInt (attacked.health) + " HP";
+		}
 	}
 
 	public float time { 

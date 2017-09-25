@@ -136,6 +136,17 @@ public class UnitsManager : MonoBehaviour {
 		if (updateVisionMap) {
 			unit.UpdateVisionMap (map);
 		}
+
+		GameObject unitObject = unitsSprites_ [unit.id];
+		GameObject textObject = new GameObject ("infoText");
+		textObject.transform.SetParent (unitObject.transform);
+		textObject.transform.localPosition = new Vector3 (0.0f, 0.5f, 0.0f);
+
+		TextMesh unitText = textObject.AddComponent <TextMesh> ();
+		unitText.offsetZ = -1.0f;
+		unitText.characterSize = 0.15f;
+		unitText.anchor = TextAnchor.UpperCenter;
+		unitText.text = unit.unitType +  ": " + unit.health + " HP";
 		return unit;
 	}
 
@@ -174,9 +185,8 @@ public class UnitsManager : MonoBehaviour {
 			foreach (KeyValuePair <int, IUnit> unitPair in units_) {
 				IUnit unit = unitPair.Value;
 				Vector2 mapCoords = map.RealCoordsToMapCoords (unit.position);
-				unitsSprites_ [unitPair.Key].GetComponent <SpriteRenderer> ().enabled =
-					visionMapProviderUnit_.visionMap.GetPixel (
-					    Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR;
+				unitsSprites_ [unitPair.Key].SetActive (visionMapProviderUnit_.visionMap.GetPixel (
+						Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR);
 			}
 		}
 	}
