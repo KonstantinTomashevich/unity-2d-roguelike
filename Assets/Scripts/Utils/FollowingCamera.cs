@@ -5,6 +5,7 @@ using UnityEngine;
 public class FollowingCamera : MonoBehaviour {
 	public float speed;
 	public int borderSize;
+	public KeyCode takeScreenShotKey;
 
 	private IUnit followingUnit_;
 	private bool scrollingToUnit_;
@@ -26,6 +27,10 @@ public class FollowingCamera : MonoBehaviour {
 		bool[] bordersReached = CorrectCameraPosition ();
 		if (scrollingToUnit_ && !isInTurn_ && !CheckIsScrollingNeeded (bordersReached)) {
 			scrollingToUnit_ = false;
+		}
+
+		if (Input.GetKeyDown (takeScreenShotKey)) {
+			TakeScreenShot ();
 		}
 	}
 
@@ -125,5 +130,17 @@ public class FollowingCamera : MonoBehaviour {
 		bool shouldScrollX = !Mathf.Approximately (unitPosition.x, cameraPosition.x) && !bordersReached [0];
 		bool shouldScrollY = !Mathf.Approximately (unitPosition.y, cameraPosition.y) && !bordersReached [1];
 		return shouldScrollX || shouldScrollY;
+	}
+
+	private void TakeScreenShot () {
+		if (!System.IO.Directory.Exists (Application.persistentDataPath + "/ScreenShots")) {
+			System.IO.Directory.CreateDirectory (Application.persistentDataPath + "/ScreenShots");
+		}
+
+		int screenShotIndex = 0;
+		while (System.IO.File.Exists (Application.persistentDataPath + "/ScreenShots/ScreenShot" + screenShotIndex + ".png")) {
+			screenShotIndex++;
+		}
+		ScreenCapture.CaptureScreenshot (Application.persistentDataPath + "/ScreenShots/ScreenShot" + screenShotIndex + ".png");
 	}
 }

@@ -1038,6 +1038,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   borderSize: 20
+  takeScreenShotKey: 293
 --- !u!1 &1420197300
 GameObject:
   m_ObjectHideFlags: 0
