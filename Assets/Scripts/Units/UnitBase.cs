@@ -13,6 +13,8 @@ public abstract class UnitBase : IUnit
 	public static Color VISIBLE_COLOR = new Color (1.0f, 1.0f, 1.0f, 1.0f);
 
 	private int id_;
+	private GameObject unitObject_;
+
 	private Vector2 position_;
 	private float health_;
 	private float regeneration_;
@@ -30,6 +32,8 @@ public abstract class UnitBase : IUnit
 	public UnitBase (string unitType, float health = STANDART_UNIT_MAX_HEALTH)
 	{
 		id_ = 0;
+		unitObject_ = null;
+
 		unitType_ = unitType;
 		position_ = Vector2.zero;
 		health_ = health;
@@ -49,13 +53,13 @@ public abstract class UnitBase : IUnit
 	{
 	}
 
-
 	public void ApplyDamage (float damage)
 	{
 		float unblockedDamage = damage - armor_;
 		if (unblockedDamage > 0.0f) {
 			health_ -= unblockedDamage;
 		}
+		UpdateHealthLabel ();
 	}
 
 	public virtual void TurnBegins () {
@@ -63,6 +67,7 @@ public abstract class UnitBase : IUnit
 		if (health_ > STANDART_UNIT_MAX_HEALTH) {
 			health_ = STANDART_UNIT_MAX_HEALTH;
 		}
+		UpdateHealthLabel ();
 	}
 
 	public abstract IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
@@ -147,6 +152,13 @@ public abstract class UnitBase : IUnit
 		visionMap_.Apply ();
 	}
 
+	private void UpdateHealthLabel () {
+		TextMesh unitText = unitObject_.transform.GetComponentInChildren <TextMesh> ();
+		if (unitText != null) {
+			unitText.text = unitType + ": " + Mathf.FloorToInt (health) + " HP";
+		}
+	}
+
 	public int id { 
 		get { 
 			return id_;
@@ -156,6 +168,14 @@ public abstract class UnitBase : IUnit
 			id_ = value; 
 		} 
 	}
+
+	public GameObject unitObject { 
+		set {
+			Debug.Assert (value != null);
+			unitObject_ = value;
+		}
+	}
+
 
 	public Vector2 position { 
 		get { 

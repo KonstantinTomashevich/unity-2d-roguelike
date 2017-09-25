@@ -30,10 +30,8 @@ public class MeleeAttackAction : IUnitAction {
 		IUnit attacked = unitsManager.GetUnitOnTile (attackPosition);
 		attacked.ApplyDamage (Random.Range (unit_.attackForce.x, unit_.attackForce.y));
 
-		GameObject attackedUnitObject = unitsManager.GetUnitObject (attacked);
-		TextMesh attackedUnitText = attackedUnitObject.transform.GetComponentInChildren <TextMesh> ();
-		if (attackedUnitText != null) {
-			attackedUnitText.text = attacked.unitType + ": " + Mathf.FloorToInt (attacked.health) + " HP";
+		if (attacked.health <= 0.0f) {
+			unitsManager.RemoveUnit (attacked.id);
 		}
 	}
 

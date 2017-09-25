@@ -52,8 +52,9 @@ public class UnitsManager : MonoBehaviour {
 
 		units_.Add (id, unit);
 		unit.id = id;
-
 		GameObject spriteObject = new GameObject ("unit" + id);
+		unit.unitObject = spriteObject;
+
 		spriteObject.transform.SetParent (transform);
 		spriteObject.transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 		unitsObjects_.Add (id, spriteObject);
@@ -76,8 +77,22 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public bool RemoveUnit (int id) {
-		bool exists = units_.ContainsKey (id) && unitsObjects_.ContainsKey (id);
+		int indexOfUnit = 0;
+		bool exists = false;
+
+		foreach (KeyValuePair <int, IUnit> unitPair in units_) {
+			if (unitPair.Value.id == id) {
+				exists = true;
+				break;
+			}
+			indexOfUnit++;
+		}
+
 		if (exists) {
+			if (indexOfUnit <= currentProcessingUnitIndex_) {
+				currentProcessingUnitIndex_--;
+			}
+
 			IUnit unit = units_ [id];
 			MessageUtils.SendMessageToObjectsWithTag (tag, "UnitDie", unit);
 			units_.Remove (id);
@@ -231,27 +246,7 @@ public class UnitsManager : MonoBehaviour {
 
 	private void ProcessNextUnitTurn () {
 		CorrectPreviousUnitSpritePosition ();
-		IUnit unit = null;
-
-		for (int index = 0; index < units_.Count; index++) {
-			IUnit scanningUnit = GetUnitByIndex (index);
-			if (scanningUnit.health <= 0.0f) {
-				RemoveUnit (scanningUnit.id);
-
-				if (index < currentProcessingUnitIndex_) {
-					currentProcessingUnitIndex_--;
-				}
-			}
-		}
-
-		while (currentProcessingUnitIndex_ < units_.Count && unit == null) {
-			unit = GetUnitByIndex (currentProcessingUnitIndex_);
-			if (unit.health <= 0.0f) {
-
-				RemoveUnit (unit.id);
-				unit = null;
-			}
-		}
+		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
 
 		if (unit != null) {
 			currentProcessingElapsedTime_ = 0.0f;

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public interface IUnit {
 	int id { get; set; }
+	GameObject unitObject { set; }
+
 	Vector2 position { get; set; }
 	float health { get; }
 	float regeneration { get; set; }
