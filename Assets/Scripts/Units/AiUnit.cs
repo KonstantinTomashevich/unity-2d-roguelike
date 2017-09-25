@@ -64,7 +64,7 @@ public class AiUnit : UnitBase {
 		if (playerUnit != null) {
 			Vector2 direction = playerUnit.position - position;
 			if (direction.magnitude == 1.0f) {
-				actions.Add (BASIC_ATTACK_PLAYER_IF_ITS_NEAR_POINTS - playerUnit.health, new MeleeAttackAction (this, direction));
+				actions [BASIC_ATTACK_PLAYER_IF_ITS_NEAR_POINTS - playerUnit.health] = new MeleeAttackAction (this, direction);
 			}
 		}
 	}
@@ -81,7 +81,7 @@ public class AiUnit : UnitBase {
 			if (lastFindPathResult_.Count > 1) {
 				Vector2 direction = lastFindPathResult_ [1] - lastFindPathResult_ [0];
 				lastFindPathResult_.RemoveAt (0);
-				actions.Add (BASIC_GO_TO_PLAYER_POINTS * (1.0f - lastFindPathResult_.Count / visionRange), new MoveAction (this, direction));
+				actions [BASIC_GO_TO_PLAYER_POINTS * (1.0f - lastFindPathResult_.Count / visionRange)] = new MoveAction (this, direction);
 
 			} else {
 				return;
@@ -98,7 +98,7 @@ public class AiUnit : UnitBase {
 
 			foreach (Vector2 direction in directions) {
 				if ((playerUnit.position - position - direction).magnitude > 1) {
-					actions.Add (runAwayPoints, new MoveAction (this, direction));
+					actions [runAwayPoints] = new MoveAction (this, direction);
 					return;
 				}
 			}
