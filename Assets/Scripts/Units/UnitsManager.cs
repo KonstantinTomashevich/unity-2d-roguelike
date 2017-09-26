@@ -178,6 +178,18 @@ public class UnitsManager : MonoBehaviour {
 			float.Parse (xml.Attributes ["worldRectY0"].InnerText),
 			float.Parse (xml.Attributes ["worldRectY1"].InnerText));
 
+		int minPatrolTargets = 0;
+		int maxPatrolTargets = 0;
+
+		if (xml.Attributes ["generatePatrols"] != null && bool.Parse (xml.Attributes ["generatePatrols"].InnerText)) {
+			minPatrolTargets = int.Parse (xml.Attributes ["minPatrolTargets"].InnerText);
+			maxPatrolTargets = int.Parse (xml.Attributes ["maxPatrolTargets"].InnerText);
+
+			if (minPatrolTargets < 2) {
+				minPatrolTargets = 2;
+			}
+		}
+
 		for (int index = 0; index < count; index++) {
 			Vector2 position = Vector2.zero;
 			Tile tile = null;
@@ -192,6 +204,29 @@ public class UnitsManager : MonoBehaviour {
 			unit.position = position;
 			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 			unit.UpdateVisionMap (map);
+
+			if (minPatrolTargets != 0 && maxPatrolTargets != 0) {
+				int patrolTargetsCount = Random.Range (minPatrolTargets, maxPatrolTargets + 1);
+				List <Vector2> patrolTargets = new List <Vector2> ();
+
+				patrolTargets.Add (position);
+				patrolTargetsCount--;
+
+				while (patrolTargetsCount > 0) {
+					Vector2 patrolTarget = Vector2.zero;
+					Tile targetTile = null;
+
+					do {
+						patrolTarget.x = Mathf.Round (Random.Range (xMinMax.x, xMinMax.y));
+						patrolTarget.y = Mathf.Round (Random.Range (yMinMax.x, yMinMax.y));
+						targetTile = map.GetTile (patrolTarget);
+					} while (targetTile == null || !targetTile.passable);
+
+					patrolTargets.Add (patrolTarget);
+					patrolTargetsCount--;
+				}
+				unit.patrolTargets = patrolTargets;
+			}
 		}
 	}
 

@@ -4,6 +4,7 @@
     <units>
     	<player type="player" positionX="14" positionY="60" mapCoords="true" invertY="true" health="100"/>
     	<unit type="orc" positionX="14" positionY="50" mapCoords="true" invertY="true" health="100"/>
-    	<spawner type="orc" worldRectX0="-28" worldRectY0="-28" worldRectX1="-15" worldRectY1="-15" health="100" minCount="3" maxCount="6"/>
+    	<spawner type="orc" worldRectX0="-28" worldRectY0="-28" worldRectX1="-15" worldRectY1="-15" 
+    		health="100" minCount="3" maxCount="6" generatePatrols="true" minPatrolTargets="2" maxPatrolTargets="5"/>
     </units>
 </map>
