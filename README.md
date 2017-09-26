@@ -1,5 +1,5 @@
 # Unity 2D Roguelike [Work In Progress]
-Simple roguelike game, which I develop to learn Unity game engine.
+Simple roguelike game, which I’m developing to learn Unity game engine.
 
 **Engine:** Unity.
 
