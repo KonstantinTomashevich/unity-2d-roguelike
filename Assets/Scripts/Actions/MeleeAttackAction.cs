@@ -21,8 +21,14 @@ public class MeleeAttackAction : IUnitAction {
 	}
 
 	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
-		MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
-			new MeleeAttackAnimation (unitsManager.GetUnitObject (unit_), direction_));
+
+		if (unitsManager.GetUnitObject (unit_).activeSelf) {
+			MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
+				new MeleeAttackAnimation (unitsManager.GetUnitObject (unit_), direction_));
+			
+		} else {
+			MessageUtils.SendMessageToObjectsWithTag (objectsTag, "AllAnimationsFinished", null);
+		}
 	}
 
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {

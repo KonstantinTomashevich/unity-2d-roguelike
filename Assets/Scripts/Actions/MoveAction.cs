@@ -21,8 +21,13 @@ public class MoveAction : IUnitAction {
 	}
 
 	public void SetupAnimations (string objectsTag, Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
-		MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
-			new MoveAnimation (unitsManager.GetUnitObject (unit_), direction_));
+		if (unitsManager.GetUnitObject (unit_).activeSelf) {
+			MessageUtils.SendMessageToObjectsWithTag (objectsTag, "RequestAnimation", 
+				new MoveAnimation (unitsManager.GetUnitObject (unit_), direction_));
+
+		} else {
+			MessageUtils.SendMessageToObjectsWithTag (objectsTag, "AllAnimationsFinished", null);
+		}
 	}
 
 	public void Commit (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
@@ -44,6 +49,7 @@ public class MoveAction : IUnitAction {
 
 	public static bool StaticValidation (Map map, UnitsManager unitsManager, ItemsManager itemsManager,
 		IUnit unit, Vector2 direction) {
+
 		if (direction == Vector2.up || direction == Vector2.down ||
 		    direction == Vector2.left || direction == Vector2.right) {
 
