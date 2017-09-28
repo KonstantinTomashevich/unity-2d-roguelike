@@ -89,8 +89,8 @@ public class Map : MonoBehaviour {
 					if (tile != null && (tile.passable || (findPathToAttack && neighbor.Equals (endPosition))) &&
 						(unitsManager.GetUnitOnTile (neighbor) == null || (findPathToAttack && neighbor.Equals (endPosition))) &&
 					    (!costSoFar.ContainsKey (neighbor) || costSoFar [neighbor] > costToThisTile + 1)) {
+
 						uint heuristicDistance = (uint) Mathf.RoundToInt (1000.0f * HeuristicDistance (neighbor, endPosition));
-						
 						while (frontier.ContainsKey (heuristicDistance + (costToThisTile + 1) * 1000)) {
 							heuristicDistance++;
 						}

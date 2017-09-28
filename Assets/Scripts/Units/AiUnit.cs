@@ -116,7 +116,11 @@ public class AiUnit : UnitBase {
 			Vector2[] directions = { Vector2.up, Vector2.down, Vector2.left, Vector2.right };
 
 			foreach (Vector2 direction in directions) {
-				if ((playerUnit.position - position - direction).magnitude > 1) {
+				Tile tile = map.GetTile (position + direction);
+
+				if ((playerUnit.position - position - direction).magnitude > 1 && unitsManager.GetUnitOnTile (position + direction) == null &&
+					tile != null && tile.passable) {
+
 					actions [runAwayPoints] = new MoveAction (this, direction);
 					return;
 				}
@@ -130,7 +134,7 @@ public class AiUnit : UnitBase {
 		if (playerUnit == null && patrolTargets_.Count > 0) {
 			Vector2 currentPatrolTarget = patrolTargets_ [currentPatrolTargetIndex_];
 
-			if (lastFindPathTarget_ != currentPatrolTarget) {
+			if (lastFindPathTarget_ != currentPatrolTarget || lastFindPathResult_.Count == 0) {
 				lastFindPathTarget_ = currentPatrolTarget;
 				bool isGoingToAttackMode = unitsManager.GetUnitOnTile (currentPatrolTarget) != null;
 				lastFindPathResult_ = map.FindPath (position, currentPatrolTarget, isGoingToAttackMode);

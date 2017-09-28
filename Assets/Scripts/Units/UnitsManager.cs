@@ -349,6 +349,7 @@ public class UnitsManager : MonoBehaviour {
 	private void SetupNextAction () {
 		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
 		currentProcessingAction_ = null;
+
 		do {
 			currentProcessingAction_ = unit.NextAction (map, this, itemsManager);
 		} while (currentProcessingAction_ != null && !currentProcessingAction_.IsValid (map, this, itemsManager));
