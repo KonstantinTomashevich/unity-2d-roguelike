@@ -10,14 +10,6 @@ public class UnitsManager : MonoBehaviour {
 	private Dictionary <int, IUnit> units_;
 	private Dictionary <int, GameObject> unitsObjects_;
 	private Dictionary <string, UnitTypeData> unitsTypesData_;
-
-	private bool isProcessingTurn_;
-	private List <IAction> immediateActionsQueue_;
-	private float immediateActionsElapsedTime_;
-
-	private int currentProcessingUnitIndex_;
-	private IAction currentProcessingAction_;
-	private float currentProcessingElapsedTime_;
 	private IUnit visionMapProviderUnit_;
 
 	public UnitsManager () {
@@ -31,14 +23,6 @@ public class UnitsManager : MonoBehaviour {
 	void Start () {
 		units_ = new Dictionary <int, IUnit> ();
 		unitsObjects_ = new Dictionary <int, GameObject> ();
-
-		isProcessingTurn_ = false;
-		immediateActionsQueue_ = new List <IAction> ();
-		immediateActionsElapsedTime_ = 0.0f;
-
-		currentProcessingAction_ = null;
-		currentProcessingUnitIndex_ = -1;
-		currentProcessingElapsedTime_ = 0.0f;
 	}
 
 	void Update () {
@@ -76,7 +60,7 @@ public class UnitsManager : MonoBehaviour {
 		spriteRenderer.size = Vector2.one;
 	}
 
-	public bool RemoveUnit (int id) {
+	public int RemoveUnit (int id) {
 		int indexOfUnit = 0;
 		bool exists = false;
 
@@ -89,10 +73,6 @@ public class UnitsManager : MonoBehaviour {
 		}
 
 		if (exists) {
-			if (indexOfUnit <= currentProcessingUnitIndex_) {
-				currentProcessingUnitIndex_--;
-			}
-
 			IUnit unit = units_ [id];
 			MessageUtils.SendMessageToObjectsWithTag (tag, "UnitDie", unit);
 			units_.Remove (id);
@@ -101,7 +81,7 @@ public class UnitsManager : MonoBehaviour {
 			unitsObjects_.Remove (id);
 			Destroy (spriteObject);
 		}
-		return exists;
+		return exists ? indexOfUnit : -1;
 	}
 
 	public IUnit GetUnitById (int id) {
@@ -248,50 +228,19 @@ public class UnitsManager : MonoBehaviour {
 		}
 	}
 
-	void NextTurnRequest () {
-		if (!isProcessingTurn_) {
-			currentProcessingUnitIndex_ = 0;
-			currentProcessingAction_ = null;
-			currentProcessingElapsedTime_ = 0.0f;
-
-			isProcessingTurn_ = true;
-			immediateActionsQueue_.Clear ();
-			immediateActionsElapsedTime_ = 0.0f;
-			ProcessNextUnitTurn ();
-		}
+	public int GetUnitsCount () {
+		return units_.Count;
 	}
 
-	void AllAnimationsFinished () {
-		if (isProcessingTurn_) {
-			ProcessCurrentActionAndStartNext ();
-		} else {
-			ProcessImmediateAction ();
-		}
-		UpdateUnitsSpritesByVisionMap ();
-	}
-
-	void ImmediateActionRequest (IAction action) {
-		if (!isProcessingTurn_ && immediateActionsElapsedTime_ <= 1.0f) {
-			immediateActionsQueue_.Add (action);
-			if (immediateActionsQueue_.Count == 1) {
-				SetupNextImmediateAction ();
+	public IUnit GetUnitByIndex (int index) {
+		int currentIndex = 0;
+		foreach (KeyValuePair <int, IUnit> pair in units_) {
+			if (currentIndex == index) {
+				return pair.Value;
 			}
+			currentIndex++;
 		}
-	}
-
-	private void ProcessNextUnitTurn () {
-		CorrectPreviousUnitSpritePosition ();
-		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
-
-		if (unit != null) {
-			currentProcessingElapsedTime_ = 0.0f;
-			unit.TurnBegins ();
-			SetupNextAction ();
-
-		} else {
-			isProcessingTurn_ = false;
-			MessageUtils.SendMessageToObjectsWithTag (tag, "TurnFinished", null);
-		}
+		return null;
 	}
 
 	private T SpawnUnitFromXml <T> (XmlNode xml, System.Func <string, float, T> Construct) where T : IUnit {
@@ -331,92 +280,6 @@ public class UnitsManager : MonoBehaviour {
 			unit.visionRange = (uint) visionRange;
 		}
 		return unit;
-	}
-
-	private void ProcessCurrentActionAndStartNext () {
-		currentProcessingAction_.Commit (map, this, itemsManager);
-		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
-		if (unit.health <= 0.0f) {
-
-			RemoveUnit (unit.id);
-			ProcessNextUnitTurn ();
-
-		} else {
-			SetupNextAction ();
-		}
-	}
-
-	private void SetupNextAction () {
-		IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_);
-		currentProcessingAction_ = null;
-
-		do {
-			currentProcessingAction_ = unit.NextAction (map, this, itemsManager);
-		} while (currentProcessingAction_ != null && !currentProcessingAction_.IsValid (map, this, itemsManager));
-
-		if (currentProcessingAction_ != null) {
-			currentProcessingElapsedTime_ += currentProcessingAction_.time;
-		}
-
-		if (currentProcessingAction_ == null || currentProcessingElapsedTime_ > 1.0f) {
-			currentProcessingUnitIndex_++;
-			ProcessNextUnitTurn ();
-		} else {
-			currentProcessingAction_.SetupAnimations (tag, map, this, itemsManager);
-		}
-	}
-
-	private IUnit GetUnitByIndex (int index) {
-		int currentIndex = 0;
-		foreach (KeyValuePair <int, IUnit> pair in units_) {
-			if (currentIndex == index) {
-				return pair.Value;
-			}
-			currentIndex++;
-		}
-		return null;
-	}
-
-	private void CorrectPreviousUnitSpritePosition () {
-		if (currentProcessingUnitIndex_ > 0) {
-			IUnit unit = GetUnitByIndex (currentProcessingUnitIndex_ - 1);
-			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
-		}
-	}
-
-	private void ProcessImmediateAction () {
-		IAction action = immediateActionsQueue_ [0];
-		action.Commit (map, this, itemsManager);
-		if (action is IUnitAction) {
-			IUnit unit = (action as IUnitAction).unit;
-			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
-		}
-
-		immediateActionsQueue_.RemoveAt (0);
-		MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionFinished", action);
-		SetupNextImmediateAction ();
-	}
-
-	private void SetupNextImmediateAction () {
-		if (immediateActionsQueue_.Count > 0) {
-			IAction action = immediateActionsQueue_ [0];
-			immediateActionsElapsedTime_ += action.time;
-
-			if (immediateActionsElapsedTime_ > 1.0f) {
-				immediateActionsQueue_.Clear ();
-				MessageUtils.SendMessageToObjectsWithTag (tag, "AllImmediateActionsFinished", null);
-				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionsMaxTimeReached", null);
-
-			} else {
-				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionStart", action);
-				action.SetupAnimations (tag, map, this, itemsManager);
-			}
-		} else {
-			MessageUtils.SendMessageToObjectsWithTag (tag, "AllImmediateActionsFinished", null);
-			if (immediateActionsElapsedTime_ >= 1.0f) {
-				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionsMaxTimeReached", null);
-			}
-		}
 	}
 
 	private void SetVisionMapProviderUnit (IUnit unit) {
