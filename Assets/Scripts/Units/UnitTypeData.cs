@@ -2,7 +2,6 @@
 using System;
 using System.Xml;
 
-[System.Serializable]
 public class UnitTypeData {
 	private Sprite sprite_;
 	private float defaultArmor_;
