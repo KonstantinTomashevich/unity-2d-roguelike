@@ -14,8 +14,6 @@ public class Map : MonoBehaviour {
 	public Color woodFloorColor;
 
 	private Tile[][] tiles_;
-	private Texture2D tilesImage_;
-	private XmlDocument mapXml_;
 	private bool isFirstUpdate_;
 
 	public Map () {
@@ -27,21 +25,9 @@ public class Map : MonoBehaviour {
 	}
 
 	void Start () {
-		if (!LoadMap ()) {
-			return;
-		}
-
-		LoadTiles ();
-		GenerateMesh ();
-		SendLoadUnitsTypes ();
-		isFirstUpdate_ = true;
 	}
 
 	void Update () {
-		if (isFirstUpdate_) {
-			Init ();
-			isFirstUpdate_ = false;
-		}
 	}
 
 	public List <Vector2> FindPath (Vector2 startPosition, Vector2 endPosition, bool findPathToAttack = false) {
@@ -163,30 +149,13 @@ public class Map : MonoBehaviour {
 		return position;
 	}
 
-	private bool LoadMap () {
-		mapXml_ = new XmlDocument ();
-		mapXml_.LoadXml ((Resources.Load ("Maps/" + mapName + "/Map") as TextAsset).text);
-		XmlNode root = mapXml_.DocumentElement;
-
-		XmlNode tilesInfoNode = root ["tiles"];
-		if (tilesInfoNode.Attributes ["type"].InnerText != "image") {
-			Debug.LogError ("At the moment, only tiles loading from image is supported!");
-			return false;
-		}
-
-		string imagePath = "Maps/" + mapName + "/" + tilesInfoNode.Attributes ["file"].InnerText;
-		tilesImage_ = Resources.Load (imagePath) as Texture2D;
-		Debug.Assert (tilesImage_ != null);
-		return true;
-	}
-
-	private void LoadTiles () {
-		tiles_ = new Tile[tilesImage_.width][];
+	public void LoadTilesFromImage (Texture2D tilesImage) {
+		tiles_ = new Tile[tilesImage.width][];
 		for (int x = 0; x < tiles_.Length; x++) {
-			tiles_ [x] = new Tile[tilesImage_.height];
+			tiles_ [x] = new Tile[tilesImage.height];
 
 			for (int y = 0; y < tiles_ [x].Length; y++) {
-				Color color = tilesImage_.GetPixel (x, y);
+				Color color = tilesImage.GetPixel (x, y);
 				Tile tile = new Tile ();
 
 				if (color == stoneWallColor) {
@@ -220,20 +189,22 @@ public class Map : MonoBehaviour {
 				tiles_ [x] [y] = tile;
 			}
 		}
+
+		MessageUtils.SendMessageToObjectsWithTag (tag, "MapSize", new Vector2 (tiles_.Length, tiles_ [0].Length));
 	}
 
-	private void GenerateMesh () {
+	public void GenerateMesh () {
 		Mesh mesh = new Mesh ();
-		Vector2 meshOffset = new Vector2 (-tilesImage_.width / 2, -tilesImage_.height / 2);
+		Vector2 meshOffset = new Vector2 (-tiles_.Length / 2, -tiles_ [0].Length / 2);
 
-		int tilesCount = tilesImage_.width * tilesImage_.height;
+		int tilesCount = tiles_.Length * tiles_ [0].Length;
 		Vector3[] vertices = new Vector3[4 * tilesCount];
 		int[] triangles = new int[6 * tilesCount];
 		Vector2[] uv = new Vector2[4 * tilesCount];
 
 		for (int x = 0; x < tiles_.Length; x++) {
 			for (int y = 0; y < tiles_ [x].Length; y++) {
-				int tileIndex = x * tilesImage_.width + y;
+				int tileIndex = x * tiles_.Length + y;
 
 				vertices [tileIndex * 4 + 0] = new Vector3 (-0.5f + x + meshOffset.x, -0.5f + y + meshOffset.y, 0.0f);
 				vertices [tileIndex * 4 + 1] = new Vector3 (0.5f + x + meshOffset.x, -0.5f + y + meshOffset.y, 0.0f);
@@ -260,29 +231,6 @@ public class Map : MonoBehaviour {
 		mesh.uv = uv;
 		GetComponent <MeshFilter> ().mesh = mesh;
 	}
-
-	private void SendLoadUnitsTypes () {
-		XmlNode unitsTypesNode = mapXml_.DocumentElement ["unitsTypes"];
-		Debug.Assert (unitsTypesNode != null);
-		string type = unitsTypesNode.Attributes ["type"].InnerText;
-
-		XmlNode nodeToLoad = null;
-		if (type.Equals ("inner")) {
-			nodeToLoad = unitsTypesNode;
-
-		} else if (type.Equals ("file")) {
-			string fileName = unitsTypesNode.Attributes ["file"].InnerText;
-			XmlDocument unitsTypesDocument = new XmlDocument ();
-			unitsTypesDocument.LoadXml ((Resources.Load ("Maps/" + mapName + "/" + fileName) as TextAsset).text);
-			nodeToLoad = unitsTypesDocument.DocumentElement;
-
-		} else {
-			XmlDocument unitsTypesDocument = new XmlDocument ();
-			unitsTypesDocument.LoadXml ((Resources.Load ("DefaultUnits") as TextAsset).text);
-			nodeToLoad = unitsTypesDocument.DocumentElement;
-		}
-		MessageUtils.SendMessageToObjectsWithTag (tag, "LoadUnitsTypes", nodeToLoad);
-	}
     
     private Vector2 GetTileTextureCoord (int tileTextureIndex) {
 		Vector2 coord;
@@ -291,24 +239,6 @@ public class Map : MonoBehaviour {
 		coord.x = textureX * 0.25f;
 		coord.y = textureY * 0.25f;
 		return coord;
-	}
-
-	private void Init  () {
-		MessageUtils.SendMessageToObjectsWithTag (tag, "MapSize", new Vector2 (tiles_.Length, tiles_ [0].Length));
-		LoadUnits ();
-	}
-
-	private void LoadUnits () {
-		foreach (XmlNode xml in mapXml_.DocumentElement ["units"]) {
-			if (xml.LocalName == "player") {
-				unitsManager.SpawnPlayerFromXml (xml);
-			} else if (xml.LocalName == "unit") {
-				unitsManager.SpawnAiUnitFromXml (xml);
-			} else if (xml.LocalName == "spawner") {
-				unitsManager.ProcessXmlSpawner (xml);
-			}
-		}
-		unitsManager.UpdateUnitsSpritesByVisionMap ();
 	}
 
 	static public float HeuristicDistance (Vector2 first, Vector2 second) {

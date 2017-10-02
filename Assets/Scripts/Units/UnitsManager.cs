@@ -133,6 +133,13 @@ public class UnitsManager : MonoBehaviour {
 		return GetUnitObjectById (unit.id);
 	}
 
+	public void LoadUnitsTypes (XmlNode rootNode) {
+		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
+		foreach (XmlNode node in rootNode.ChildNodes) {
+			unitsTypesData_ [node.LocalName] = new UnitTypeData (node, spritesPathPrefix);
+		}
+	}
+
 	public PlayerUnit SpawnPlayerFromXml (XmlNode xml, bool updateVisionMap = true) {
 		PlayerUnit playerUnit = SpawnUnitFromXml <PlayerUnit> (xml, (unitType, health) => new PlayerUnit (health));
 		MessageUtils.SendMessageToObjectsWithTag (tag, "PlayerUnitCreated", playerUnit);
@@ -238,13 +245,6 @@ public class UnitsManager : MonoBehaviour {
 				unitsObjects_ [unitPair.Key].SetActive (visionMapProviderUnit_.visionMap.GetPixel (
 						Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR);
 			}
-		}
-	}
-
-	void LoadUnitsTypes (XmlNode rootNode) {
-		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
-		foreach (XmlNode node in rootNode.ChildNodes) {
-			unitsTypesData_ [node.LocalName] = new UnitTypeData (node, spritesPathPrefix);
 		}
 	}
 
