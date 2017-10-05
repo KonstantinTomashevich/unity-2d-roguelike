@@ -7,7 +7,7 @@ public class UnitsManager : MonoBehaviour {
 	public Map map;
 	public ItemsManager itemsManager;
 
-	private Dictionary <int, IUnit> units_;
+	private List <IUnit> units_;
 	private Dictionary <int, GameObject> unitsObjects_;
 	private Dictionary <string, UnitTypeData> unitsTypesData_;
 	private IUnit visionMapProviderUnit_;
@@ -21,7 +21,7 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	void Start () {
-		units_ = new Dictionary <int, IUnit> ();
+		units_ = new List <IUnit> ();
 		unitsObjects_ = new Dictionary <int, GameObject> ();
 	}
 
@@ -30,11 +30,13 @@ public class UnitsManager : MonoBehaviour {
 
 	public void AddUnit (IUnit unit) {
 		int id = units_.Count + 1;
-		while (units_.ContainsKey (id)) {
-			id++;
+		if (id > 1) {
+			while (units_ [units_.Count - 1].id == id) {
+				id++;
+			}
 		}
 
-		units_.Add (id, unit);
+		units_.Add (unit);
 		unit.id = id;
 		GameObject spriteObject = new GameObject ("unit" + id);
 		unit.unitObject = spriteObject;
@@ -61,36 +63,27 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public int RemoveUnit (int id) {
-		int indexOfUnit = 0;
-		bool exists = false;
-
-		foreach (KeyValuePair <int, IUnit> unitPair in units_) {
-			if (unitPair.Value.id == id) {
-				exists = true;
-				break;
-			}
-			indexOfUnit++;
-		}
-
-		if (exists) {
-			IUnit unit = units_ [id];
+		int index = IndexOfUnit (id);
+		if (index != -1) {
+			
+			IUnit unit = units_ [index];
 			MessageUtils.SendMessageToObjectsWithTag (tag, "UnitDie", unit);
-			units_.Remove (id);
+			units_.RemoveAt (index);
 
 			GameObject spriteObject = unitsObjects_ [id];
 			unitsObjects_.Remove (id);
 			Destroy (spriteObject);
 		}
-		return exists ? indexOfUnit : -1;
+
+		return index;
 	}
 
 	public IUnit GetUnitById (int id) {
-		IUnit result;
-		return units_.TryGetValue (id, out result) ? result : null;
+		return GetUnitByIndex (IndexOfUnit (id));
 	}
 
 	public IUnit GetUnitOnTile (Vector2 tilePosition) {
-		foreach (IUnit unit in units_.Values) {
+		foreach (IUnit unit in units_) {
 			if (unit.position.Equals (tilePosition)) {
 				return unit;
 			}
@@ -103,14 +96,7 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public IUnit GetUnitByIndex (int index) {
-		int currentIndex = 0;
-		foreach (KeyValuePair <int, IUnit> pair in units_) {
-			if (currentIndex == index) {
-				return pair.Value;
-			}
-			currentIndex++;
-		}
-		return null;
+		return (index > -1 && index < units_.Count) ? units_ [index] : null;
 	}
 
 	public GameObject GetUnitObjectById (int id) {
@@ -228,13 +214,24 @@ public class UnitsManager : MonoBehaviour {
 
 	public void UpdateUnitsSpritesByVisionMap () {
 		if (visionMapProviderUnit_ != null) {
-			foreach (KeyValuePair <int, IUnit> unitPair in units_) {
-				IUnit unit = unitPair.Value;
+			foreach (IUnit unit in units_) {
 				Vector2 mapCoords = map.RealCoordsToMapCoords (unit.position);
-				unitsObjects_ [unitPair.Key].SetActive (visionMapProviderUnit_.visionMap.GetPixel (
+				unitsObjects_ [unit.id].SetActive (visionMapProviderUnit_.visionMap.GetPixel (
 						Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR);
 			}
 		}
+	}
+
+	private int IndexOfUnit (int id) {
+		int currentIndex = 0;
+		foreach (IUnit unit in units_) {
+
+			if (unit.id == id) {
+				return currentIndex;
+			}
+			currentIndex++;
+		}
+		return -1;
 	}
 
 	private T SpawnUnitFromXml <T> (XmlNode xml, System.Func <string, float, T> Construct) where T : IUnit {
