@@ -79,6 +79,7 @@ public class NextTurnProcessor : MonoBehaviour {
 			SetupNextAction ();
 
 		} else {
+			UpdateItems ();
 			isProcessingTurn_ = false;
 			MessageUtils.SendMessageToObjectsWithTag (tag, "TurnFinished", null);
 		}
@@ -158,6 +159,12 @@ public class NextTurnProcessor : MonoBehaviour {
 			if (immediateActionsElapsedTime_ >= 1.0f) {
 				MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionsMaxTimeReached", null);
 			}
+		}
+	}
+
+	private void UpdateItems () {
+		for (int index = 0; index < itemsManager.GetItemsCount (); index++) {
+			itemsManager.GetItemByIndex (index).ProcessTurn (map, unitsManager, itemsManager);
 		}
 	}
 }
