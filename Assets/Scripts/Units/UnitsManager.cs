@@ -85,11 +85,8 @@ public class UnitsManager : MonoBehaviour {
 	}
 
 	public IUnit GetUnitById (int id) {
-		if (units_.ContainsKey (id)) {
-			return units_ [id];
-		} else {
-			return null;
-		}
+		IUnit result;
+		return units_.TryGetValue (id, out result) ? result : null;
 	}
 
 	public IUnit GetUnitOnTile (Vector2 tilePosition) {
@@ -101,12 +98,24 @@ public class UnitsManager : MonoBehaviour {
 		return null;
 	}
 
-	public GameObject GetUnitObjectById (int id) {
-		if (unitsObjects_.ContainsKey (id)) {
-			return unitsObjects_ [id];
-		} else {
-			return null;
+	public int GetUnitsCount () {
+		return units_.Count;
+	}
+
+	public IUnit GetUnitByIndex (int index) {
+		int currentIndex = 0;
+		foreach (KeyValuePair <int, IUnit> pair in units_) {
+			if (currentIndex == index) {
+				return pair.Value;
+			}
+			currentIndex++;
 		}
+		return null;
+	}
+
+	public GameObject GetUnitObjectById (int id) {
+		GameObject result;
+		return unitsObjects_.TryGetValue (id, out result) ? result : null;
 	}
 
 	public GameObject GetUnitObject (IUnit unit) {
@@ -226,21 +235,6 @@ public class UnitsManager : MonoBehaviour {
 						Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR);
 			}
 		}
-	}
-
-	public int GetUnitsCount () {
-		return units_.Count;
-	}
-
-	public IUnit GetUnitByIndex (int index) {
-		int currentIndex = 0;
-		foreach (KeyValuePair <int, IUnit> pair in units_) {
-			if (currentIndex == index) {
-				return pair.Value;
-			}
-			currentIndex++;
-		}
-		return null;
 	}
 
 	private T SpawnUnitFromXml <T> (XmlNode xml, System.Func <string, float, T> Construct) where T : IUnit {

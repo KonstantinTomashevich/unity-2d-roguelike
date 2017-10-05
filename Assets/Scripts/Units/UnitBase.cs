@@ -29,8 +29,7 @@ public abstract class UnitBase : IUnit
 	private Texture2D visionMap_;
 	private Dictionary <Vector2, uint> lastVisionMapUpdateVisibleTiles_;
 
-	public UnitBase (string unitType, float health = STANDART_UNIT_MAX_HEALTH)
-	{
+	public UnitBase (string unitType, float health = STANDART_UNIT_MAX_HEALTH) {
 		id_ = 0;
 		unitObject_ = null;
 
@@ -49,12 +48,10 @@ public abstract class UnitBase : IUnit
 		lastVisionMapUpdateVisibleTiles_ = new Dictionary <Vector2, uint> ();
 	}
 
-	~UnitBase ()
-	{
+	~UnitBase () {
 	}
 
-	public void ApplyDamage (float damage)
-	{
+	public void ApplyDamage (float damage) {
 		float unblockedDamage = damage - armor_;
 		if (unblockedDamage > 0.0f) {
 			health_ -= unblockedDamage;
@@ -71,22 +68,19 @@ public abstract class UnitBase : IUnit
 	}
 
 	public abstract IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
-	public void InitVisionMap (int mapWidth, int mapHeight)
-	{
+	public void InitVisionMap (int mapWidth, int mapHeight) {
 		visionMap_ = new Texture2D (mapWidth, mapHeight);
 		visionMap_.filterMode = FilterMode.Point;
 		ClearVisionMap ();
 	}
 
-	public void UpdateVisionMap (Map map)
-	{
+	public void UpdateVisionMap (Map map) {
 		ClearVisionMap ();
 		lastVisionMapUpdateVisibleTiles_ = GetVisibleTiles (map);
 		FillVisibleTiles (lastVisionMapUpdateVisibleTiles_, map);
 	}
 
-	private void ClearVisionMap ()
-	{
+	private void ClearVisionMap () {
 		for (int x = 0; x < visionMap_.width; x++) {
 			for (int y = 0; y < visionMap_.height; y++) {
 				visionMap.SetPixel (x, y, FOG_OF_WAR_COLOR);
@@ -95,8 +89,7 @@ public abstract class UnitBase : IUnit
 		visionMap_.Apply ();
 	}
 
-	private Dictionary <Vector2, uint> GetVisibleTiles (Map map)
-	{
+	private Dictionary <Vector2, uint> GetVisibleTiles (Map map) {
 		Dictionary <Vector2, uint> visibleTiles = new Dictionary <Vector2, uint> ();
 		// First value of pair is tile position, second is distance to tile.
 		List <KeyValuePair <Vector2, uint> > tilesToCheck = new List <KeyValuePair <Vector2, uint> > ();
@@ -143,8 +136,7 @@ public abstract class UnitBase : IUnit
 		return visibleTiles;
 	}
 
-	private void FillVisibleTiles (Dictionary <Vector2, uint> visibleTiles, Map map)
-	{
+	private void FillVisibleTiles (Dictionary <Vector2, uint> visibleTiles, Map map) {
 		foreach (KeyValuePair <Vector2, uint> infoPair in visibleTiles) {
 			Vector2 mapCoords = map.RealCoordsToMapCoords (infoPair.Key);
 			visionMap_.SetPixel (Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y), VISIBLE_COLOR);

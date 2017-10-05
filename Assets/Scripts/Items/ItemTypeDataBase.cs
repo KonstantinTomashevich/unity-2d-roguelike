@@ -6,13 +6,13 @@ using UnityEngine;
 public abstract class ItemTypeDataBase : IItemTypeData {
 	private Sprite sprite_;
 	private bool passable_;
-	private bool destroyable_;
+	private bool destructable_;
 	private bool pickable_;
 
 	public ItemTypeDataBase (XmlNode xml, string spritesPathPrefix) {
 		sprite_ = Resources.Load <Sprite> (spritesPathPrefix + xml.Attributes ["sprite"].InnerText);
 		passable_ = bool.Parse (xml.Attributes ["passable"].InnerText);
-		destroyable_ = bool.Parse (xml.Attributes ["destroyable"].InnerText);
+		destructable_ = bool.Parse (xml.Attributes ["destructable"].InnerText);
 		pickable_ = bool.Parse (xml.Attributes ["pickable"].InnerText);
 	}
 
@@ -32,9 +32,9 @@ public abstract class ItemTypeDataBase : IItemTypeData {
 		}
 	}
 
-	public bool destroyable { 
+	public bool destructable { 
 		get {
-			return destroyable_;
+			return destructable_;
 		}
 	}
 

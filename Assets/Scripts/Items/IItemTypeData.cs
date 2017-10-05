@@ -6,7 +6,7 @@ using UnityEngine;
 public interface IItemTypeData {
 	Sprite sprite { get; }
 	bool passable { get; }
-	bool destroyable { get; }
+	bool destructable { get; }
 	bool pickable { get; }
 
 	IItem InitItem (XmlNode xml);
