@@ -28,6 +28,7 @@ public abstract class UnitBase : IUnit
 	private uint visionRange_;
 	private Texture2D visionMap_;
 	private Dictionary <Vector2, uint> lastVisionMapUpdateVisibleTiles_;
+	private List <IItem> itemsInInventory_;
 
 	public UnitBase (string unitType, float health = STANDART_UNIT_MAX_HEALTH) {
 		id_ = 0;
@@ -78,6 +79,20 @@ public abstract class UnitBase : IUnit
 		ClearVisionMap ();
 		lastVisionMapUpdateVisibleTiles_ = GetVisibleTiles (map);
 		FillVisibleTiles (lastVisionMapUpdateVisibleTiles_, map);
+	}
+
+	public bool AddToInventory (IItem item) {
+		if (!itemsInInventory_.Contains (item)) {
+			itemsInInventory_.Add (item);
+			return true;
+
+		} else {
+			return false;
+		}
+	}
+
+	public bool RemoveFromInventory (IItem item) {
+		return itemsInInventory_.Remove (item);
 	}
 
 	private void ClearVisionMap () {

@@ -21,6 +21,10 @@ public interface IUnit {
 	void ApplyDamage (float damage);
 	void TurnBegins ();
 	IAction NextAction (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
+
 	void InitVisionMap (int mapWidth, int mapHeight);
 	void UpdateVisionMap (Map map);
+
+	bool AddToInventory (IItem item);
+	bool RemoveFromInventory (IItem item);
 }

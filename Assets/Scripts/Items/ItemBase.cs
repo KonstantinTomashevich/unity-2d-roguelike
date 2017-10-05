@@ -36,11 +36,11 @@ public abstract class ItemBase : IItem {
 	}
 
 	public void Pick (Map map, UnitsManager unitsManager, ItemsManager itemsManager, IUnit pickuper) {
-		// TODO: Implement.
+		pickuper.AddToInventory (this);
 	}
 
 	public void Throw (Map map, UnitsManager unitsManager, ItemsManager itemsManager, Vector2 direction) {
-		// TODO: Implement.
+		holder_ = null;
 	}
 
 	public int id { 

@@ -9,5 +9,5 @@ public interface IItemTypeData {
 	bool destructable { get; }
 	bool pickable { get; }
 
-	IItem InitItem (XmlNode xml);
+	IItem CreateItem (XmlNode xml);
 }
