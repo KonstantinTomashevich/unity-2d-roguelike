@@ -90,6 +90,36 @@ public class ItemsManager : MonoBehaviour {
 		return itemsObjects_.TryGetValue (id, out result) ? result : null;
 	}
 
+	public void LoadItemsTypes (XmlNode rootNode) {
+		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
+		foreach (XmlNode node in rootNode.ChildNodes) {
+			string itemTypeClass = node.Attributes ["class"].InnerText;
+
+			if (itemTypeClass == "Cargo") {
+				itemsTypesData_ [node.LocalName] = new CargoItemTypeData (node, spritesPathPrefix);
+			} else {
+				Debug.LogError ("Unknown item type class: " + itemTypeClass);
+			}
+		}
+	}
+
+	public IItem SpawnItemFromXml (XmlNode xml) {
+		IItem item = null;
+		string itemType = xml.Attributes ["itemType"].InnerText;
+
+		if (itemsTypesData_.ContainsKey (itemType)) {
+			item = itemsTypesData_ [itemType].CreateItem (map, unitsManager, this, xml);
+		} else {
+			Debug.LogError ("Unknown item type: " + itemType);
+		}
+
+		if (item != null) {
+			AddItem (item);
+		}
+
+		return item;
+	}
+
 	private int IndexOfItem (int id) {
 		int currentIndex = 0;
 		foreach (IItem item in items_) {
