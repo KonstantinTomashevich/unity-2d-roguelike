@@ -130,20 +130,19 @@ public class Map : MonoBehaviour {
 
 	public Vector2 GetWorldTransformFromXml (XmlNode xml) {
 		Vector2 position = Vector2.zero;
-		if (xml.Attributes ["positionX"] != null && xml.Attributes ["positionY"] != null) {
-			position.x = int.Parse (xml.Attributes ["positionX"].InnerText);
-			position.y = int.Parse (xml.Attributes ["positionY"].InnerText);
+		if (XmlHelper.HasAttribute (xml, "positionX") && XmlHelper.HasAttribute (xml, "positionY")) {
+			position = XmlHelper.GetVector2Attribute (xml, "positionX", "positionY");
 		}
 
-		if (xml.Attributes ["invertX"] != null && bool.Parse (xml.Attributes ["invertX"].InnerText)) {
+		if (XmlHelper.HasAttribute (xml, "invertX") && XmlHelper.GetBoolAttribute (xml, "invertX")) {
 			position.x = tiles_.Length - position.x;
 		}
 
-		if (xml.Attributes ["invertY"] != null && bool.Parse (xml.Attributes ["invertY"].InnerText)) {
+		if (XmlHelper.HasAttribute (xml, "invertY") && XmlHelper.GetBoolAttribute (xml, "invertY")) {
 			position.y = tiles_ [0].Length - position.y;
 		}
 
-		if (xml.Attributes ["mapCoords"] != null && bool.Parse (xml.Attributes ["mapCoords"].InnerText)) {
+		if (XmlHelper.HasAttribute (xml, "mapCoords") && XmlHelper.GetBoolAttribute (xml, "mapCoords")) {
 			position = MapCoordsToRealCoords (position);
 		}
 		return position;

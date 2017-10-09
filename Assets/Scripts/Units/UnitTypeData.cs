@@ -13,16 +13,13 @@ public class UnitTypeData {
 
 	public UnitTypeData (XmlNode xml, string spritesPathPrefix) {
 		sprite_ = Resources.Load <Sprite> (spritesPathPrefix + xml.Attributes ["sprite"].InnerText);
-		defaultArmor_ = float.Parse (xml.Attributes ["armor"].InnerText);
-		defaultRegeneration_ = float.Parse (xml.Attributes ["regeneration"].InnerText);
+		defaultArmor_ = XmlHelper.GetFloatAttribute (xml, "armor");
+		defaultRegeneration_ = XmlHelper.GetFloatAttribute (xml, "regeneration");;
 
-		defaultAttackForce_ = new Vector2 (
-			float.Parse (xml.Attributes ["minAttack"].InnerText),
-			float.Parse (xml.Attributes ["maxAttack"].InnerText));
-
-		defaultMoveSpeed_ = float.Parse (xml.Attributes ["moveSpeed"].InnerText);
-		defaultAttackSpeed_ = float.Parse (xml.Attributes ["attackSpeed"].InnerText);
-		defaultVisionRange_ = uint.Parse (xml.Attributes ["visionRange"].InnerText);
+		defaultAttackForce_ = XmlHelper.GetVector2Attribute (xml, "minAttack", "maxAttack");
+		defaultMoveSpeed_ = XmlHelper.GetFloatAttribute (xml, "moveSpeed");;
+		defaultAttackSpeed_ = XmlHelper.GetFloatAttribute (xml, "attackSpeed");;
+		defaultVisionRange_ = XmlHelper.GetUIntAttribute (xml, "visionRange");;
 	}
 
 	~UnitTypeData () {

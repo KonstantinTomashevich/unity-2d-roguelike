@@ -4,22 +4,45 @@ using System.Xml;
 using UnityEngine;
 
 public abstract class ItemTypeDataBase : IItemTypeData {
+	private string name_;
 	private Sprite sprite_;
 	private bool passable_;
 	private bool destructable_;
 	private bool pickable_;
 
 	public ItemTypeDataBase (XmlNode xml, string spritesPathPrefix) {
+		name_ = xml.LocalName;
 		sprite_ = Resources.Load <Sprite> (spritesPathPrefix + xml.Attributes ["sprite"].InnerText);
-		passable_ = bool.Parse (xml.Attributes ["passable"].InnerText);
-		destructable_ = bool.Parse (xml.Attributes ["destructable"].InnerText);
-		pickable_ = bool.Parse (xml.Attributes ["pickable"].InnerText);
+		passable_ = XmlHelper.GetBoolAttribute (xml, "passable");
+		destructable_ = XmlHelper.GetBoolAttribute (xml, "destructable");
+		pickable_ = XmlHelper.GetBoolAttribute (xml, "pickable");
 	}
 
 	~ItemTypeDataBase () {
 	}
 
-	public abstract IItem InitItem (XmlNode xml);
+	public abstract IItem CreateItem (Map map, UnitsManager unitsManager, ItemsManager itemsManager, XmlNode xml);
+	protected void InitBasicItemProperties (Map map, UnitsManager unitsManager, ItemsManager itemsManager, IItem item, XmlNode xml) {
+		item.passable = passable_;
+		item.destructable = destructable_;
+		item.pickable = pickable_;
+
+		item.position = map.GetWorldTransformFromXml (xml);
+		if (XmlHelper.HasAttribute (xml, "held") && XmlHelper.GetBoolAttribute (xml, "held")) {
+			IUnit unit = unitsManager.GetUnitOnTile (item.position);
+
+			if (unit != null) {
+				item.Pick (map, unitsManager, itemsManager, unit);
+			}
+		}
+	}
+
+	public string name {
+		get {
+			return name_;
+		}
+	}
+
 	public Sprite sprite { 
 		get {
 			return sprite_;
