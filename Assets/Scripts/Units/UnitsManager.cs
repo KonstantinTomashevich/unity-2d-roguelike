@@ -146,26 +146,17 @@ public class UnitsManager : MonoBehaviour {
 		unitText.text = unit.unitType +  ": " + unit.health + " HP";
 		return unit;
 	}
-
-	public void ProcessXmlSpawner (XmlNode xml) {
-		int count = Random.Range (
-			            int.Parse (xml.Attributes ["minCount"].InnerText),
-			            int.Parse (xml.Attributes ["maxCount"].InnerText));
 		
-		Vector2 xMinMax = new Vector2 (
-			                  float.Parse (xml.Attributes ["worldRectX0"].InnerText),
-			                  float.Parse (xml.Attributes ["worldRectX1"].InnerText));
-
-		Vector2 yMinMax = new Vector2 (
-			float.Parse (xml.Attributes ["worldRectY0"].InnerText),
-			float.Parse (xml.Attributes ["worldRectY1"].InnerText));
+	public void ProcessXmlSpawner (XmlNode xml) {
+		int count = Random.Range (XmlHelper.GetIntAttribute (xml, "minCount"), XmlHelper.GetIntAttribute (xml, "maxCount"));
+		Rect spawnRect = XmlHelper.GetRectAttribute (xml, "worldRect");
 
 		int minPatrolTargets = 0;
 		int maxPatrolTargets = 0;
 
-		if (xml.Attributes ["generatePatrols"] != null && bool.Parse (xml.Attributes ["generatePatrols"].InnerText)) {
-			minPatrolTargets = int.Parse (xml.Attributes ["minPatrolTargets"].InnerText);
-			maxPatrolTargets = int.Parse (xml.Attributes ["maxPatrolTargets"].InnerText);
+		if (XmlHelper.HasAttribute (xml, "generatePatrols") && XmlHelper.GetBoolAttribute (xml, "generatePatrols")) {
+			minPatrolTargets = XmlHelper.GetIntAttribute (xml, "minPatrolTargets");
+			maxPatrolTargets = XmlHelper.GetIntAttribute (xml, "maxPatrolTargets");
 
 			if (minPatrolTargets < 2) {
 				minPatrolTargets = 2;
@@ -173,17 +164,10 @@ public class UnitsManager : MonoBehaviour {
 		}
 
 		for (int index = 0; index < count; index++) {
-			Vector2 position = Vector2.zero;
-			Tile tile = null;
-
-			do {
-				position.x = Mathf.Round (Random.Range (xMinMax.x, xMinMax.y));
-				position.y = Mathf.Round (Random.Range (yMinMax.x, yMinMax.y));
-				tile = map.GetTile (position);
-			} while (GetUnitOnTile (position) != null || tile == null || !tile.passable);
+			Vector2 spawnPosition = GetValidSpawnPosition (spawnRect);
 
 			AiUnit unit = SpawnAiUnitFromXml (xml, false);
-			unit.position = position;
+			unit.position = spawnPosition;
 			unitsObjects_ [unit.id].transform.position = new Vector3 (unit.position.x, unit.position.y, 0.0f);
 			unit.UpdateVisionMap (map);
 
@@ -191,19 +175,11 @@ public class UnitsManager : MonoBehaviour {
 				int patrolTargetsCount = Random.Range (minPatrolTargets, maxPatrolTargets + 1);
 				List <Vector2> patrolTargets = new List <Vector2> ();
 
-				patrolTargets.Add (position);
+				patrolTargets.Add (spawnPosition);
 				patrolTargetsCount--;
 
 				while (patrolTargetsCount > 0) {
-					Vector2 patrolTarget = Vector2.zero;
-					Tile targetTile = null;
-
-					do {
-						patrolTarget.x = Mathf.Round (Random.Range (xMinMax.x, xMinMax.y));
-						patrolTarget.y = Mathf.Round (Random.Range (yMinMax.x, yMinMax.y));
-						targetTile = map.GetTile (patrolTarget);
-					} while (targetTile == null || !targetTile.passable);
-
+					Vector2 patrolTarget = GetValidSpawnPosition (spawnRect);
 					patrolTargets.Add (patrolTarget);
 					patrolTargetsCount--;
 				}
@@ -233,36 +209,35 @@ public class UnitsManager : MonoBehaviour {
 		}
 		return -1;
 	}
-
+		
 	private T SpawnUnitFromXml <T> (XmlNode xml, System.Func <string, float, T> Construct) where T : IUnit {
-		T unit = Construct (xml.Attributes ["type"].InnerText, float.Parse (xml.Attributes ["health"].InnerText));
+		T unit = Construct (xml.Attributes ["type"].InnerText, XmlHelper.GetFloatAttribute (xml, "health"));
 		unit.position = map.GetWorldTransformFromXml (xml);
 		AddUnit (unit);
 
-		if (xml.Attributes ["deltaMoveSpeed"] != null) {
-			unit.moveSpeed += float.Parse (xml.Attributes ["deltaMoveSpeed"].InnerText);
+		if (XmlHelper.HasAttribute (xml, "deltaMoveSpeed")) {
+			unit.moveSpeed += XmlHelper.GetFloatAttribute (xml, "deltaMoveSpeed");
 		}
 
-		if (xml.Attributes ["deltaAttackSpeed"] != null) {
-			unit.attackSpeed += float.Parse (xml.Attributes ["deltaAttackSpeed"].InnerText);
+		if (XmlHelper.HasAttribute (xml, "deltaAttackSpeed")) {
+			unit.attackSpeed += XmlHelper.GetFloatAttribute (xml, "deltaAttackSpeed");
 		}
 
-		if (xml.Attributes ["deltaAttack"] != null) {
-			float delta = float.Parse (xml.Attributes ["deltaAttack"].InnerText);
-			unit.attackForce += new Vector2 (delta, delta);
+		if (XmlHelper.HasAttribute (xml, "deltaAttack")) {
+			unit.attackForce += XmlHelper.GetVector2Attribute (xml, "deltaMinAttack", "deltaMaxAttack");
 		}
 
-		if (xml.Attributes ["deltaArmor"] != null) {
-			unit.armor += float.Parse (xml.Attributes ["deltaArmor"].InnerText);
+		if (XmlHelper.HasAttribute (xml, "deltaArmor")) {
+			unit.armor += XmlHelper.GetFloatAttribute (xml, "deltaArmor");
 		}
 
-		if (xml.Attributes ["deltaRegeneration"] != null) {
-			unit.regeneration += float.Parse (xml.Attributes ["deltaRegeneration"].InnerText);
+		if (XmlHelper.HasAttribute (xml, "deltaRegeneration")) {
+			unit.regeneration += XmlHelper.GetFloatAttribute (xml, "deltaRegeneration");
 		}
 
-		if (xml.Attributes ["deltaVisionRange"] != null) {
+		if (XmlHelper.HasAttribute (xml, "deltaVisionRange")) {
 			int visionRange = (int) unit.visionRange;
-			visionRange += int.Parse (xml.Attributes ["deltaVisionRange"].InnerText);
+			visionRange += XmlHelper.GetIntAttribute (xml, "deltaVisionRange");
 
 			if (visionRange < 1) {
 				visionRange = 1;
@@ -278,5 +253,18 @@ public class UnitsManager : MonoBehaviour {
 		map.GetComponent <MeshRenderer> ().material.SetFloat ("_MapHeight", map.height);
 		map.GetComponent <MeshRenderer> ().material.SetTexture ("_FogOfWar", unit.visionMap); 
 		visionMapProviderUnit_ = unit;;
+	}
+
+	private Vector2 GetValidSpawnPosition (Rect positionRect) {
+		Vector2 position = Vector2.zero;
+		Tile tile = null;
+
+		do {
+			position.x = Mathf.Round (Random.Range (positionRect.xMin, positionRect.xMax));
+			position.y = Mathf.Round (Random.Range (positionRect.yMin, positionRect.yMax));
+			tile = map.GetTile (position);
+
+		} while (GetUnitOnTile (position) != null || tile == null || !tile.passable);
+		return position;
 	}
 }
