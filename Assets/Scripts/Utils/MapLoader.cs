@@ -28,6 +28,7 @@ public class MapLoader : MonoBehaviour {
 
 		LoadMap (mapXml);
 		LoadUnits (mapXml);
+		LoadItems (mapXml);
 	}
 
 	private void LoadMap (XmlDocument mapXml) {
@@ -45,6 +46,11 @@ public class MapLoader : MonoBehaviour {
 	private void LoadUnits (XmlDocument mapXml) {
 		LoadUnitsTypes (mapXml);
 		SpawnUnits (mapXml);
+	}
+
+	private void LoadItems (XmlDocument mapXml) {
+		LoadItemsTypes (mapXml);
+		SpawnItems (mapXml);
 	}
 
 	private void LoadUnitsTypes (XmlDocument mapXml) {
@@ -67,6 +73,7 @@ public class MapLoader : MonoBehaviour {
 			unitsTypesDocument.LoadXml ((Resources.Load ("DefaultUnits") as TextAsset).text);
 			nodeToLoad = unitsTypesDocument.DocumentElement;
 		}
+
 		unitsManager.LoadUnitsTypes (nodeToLoad);
 	}
 
@@ -81,5 +88,39 @@ public class MapLoader : MonoBehaviour {
 			}
 		}
 		unitsManager.UpdateUnitsSpritesByVisionMap ();
+	}
+
+	private void LoadItemsTypes (XmlDocument mapXml) {
+		XmlNode itemsTypesNode = mapXml.DocumentElement ["itemsTypes"];
+		Debug.Assert (itemsTypesNode != null);
+		string type = itemsTypesNode.Attributes ["type"].InnerText;
+
+		XmlNode nodeToLoad = null;
+		if (type.Equals ("inner")) {
+			nodeToLoad = itemsTypesNode;
+
+		} else if (type.Equals ("file")) {
+			string fileName = itemsTypesNode.Attributes ["file"].InnerText;
+			XmlDocument itemsTypesDocument = new XmlDocument ();
+			itemsTypesDocument.LoadXml ((Resources.Load ("Maps/" + mapName + "/" + fileName) as TextAsset).text);
+			nodeToLoad = itemsTypesDocument.DocumentElement;
+
+		} else {
+			XmlDocument itemsTypesDocument = new XmlDocument ();
+			itemsTypesDocument.LoadXml ((Resources.Load ("DefaultItems") as TextAsset).text);
+			nodeToLoad = itemsTypesDocument.DocumentElement;
+		}
+
+		itemsManager.LoadItemsTypes (nodeToLoad);
+	}
+
+	private void SpawnItems (XmlDocument mapXml) {
+		foreach (XmlNode xml in mapXml.DocumentElement ["items"]) {
+			if (xml.LocalName == "item") {
+				itemsManager.SpawnItemFromXml (xml);
+			} else if (xml.LocalName == "spawner") {
+				itemsManager.ProcessItemsSpawner (xml);
+			}
+		}
 	}
 }
