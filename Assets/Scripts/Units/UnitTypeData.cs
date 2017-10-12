@@ -10,16 +10,19 @@ public class UnitTypeData {
 	private float defaultMoveSpeed_;
 	private float defaultAttackSpeed_;
 	private uint defaultVisionRange_;
+	private float defaultMaximumInventoryWeight_;
 
 	public UnitTypeData (XmlNode xml, string spritesPathPrefix) {
 		sprite_ = Resources.Load <Sprite> (spritesPathPrefix + xml.Attributes ["sprite"].InnerText);
 		defaultArmor_ = XmlHelper.GetFloatAttribute (xml, "armor");
-		defaultRegeneration_ = XmlHelper.GetFloatAttribute (xml, "regeneration");;
+		defaultRegeneration_ = XmlHelper.GetFloatAttribute (xml, "regeneration");
 
 		defaultAttackForce_ = XmlHelper.GetVector2Attribute (xml, "minAttack", "maxAttack");
-		defaultMoveSpeed_ = XmlHelper.GetFloatAttribute (xml, "moveSpeed");;
-		defaultAttackSpeed_ = XmlHelper.GetFloatAttribute (xml, "attackSpeed");;
-		defaultVisionRange_ = XmlHelper.GetUIntAttribute (xml, "visionRange");;
+		defaultMoveSpeed_ = XmlHelper.GetFloatAttribute (xml, "moveSpeed");
+		defaultAttackSpeed_ = XmlHelper.GetFloatAttribute (xml, "attackSpeed");
+
+		defaultVisionRange_ = XmlHelper.GetUIntAttribute (xml, "visionRange");
+		defaultMaximumInventoryWeight_ = XmlHelper.GetFloatAttribute (xml, "maximumInventoryWeight");
 	}
 
 	~UnitTypeData () {
@@ -64,6 +67,12 @@ public class UnitTypeData {
 	public uint defaultVisionRange {
 		get {
 			return defaultVisionRange_;
+		}
+	}
+
+	public float defaultMaximumInventoryWeight {
+		get {
+			return defaultMaximumInventoryWeight_;
 		}
 	}
 }

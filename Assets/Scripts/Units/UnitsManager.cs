@@ -245,6 +245,11 @@ public class UnitsManager : MonoBehaviour {
 
 			unit.visionRange = (uint) visionRange;
 		}
+
+		if (XmlHelper.HasAttribute (xml, "deltaMaximumInventoryWeight")) {
+			unit.maximumInventoryWeight += XmlHelper.GetFloatAttribute (xml, "deltaMaximumInventoryWeight");
+		}
+
 		return unit;
 	}
 

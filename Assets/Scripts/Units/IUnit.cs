@@ -15,6 +15,8 @@ public interface IUnit {
 	float attackSpeed { get; set; }
 	float moveSpeed { get; set; }
 	float armor { get; set; }
+
+	float maximumInventoryWeight { get; set; }
 	uint visionRange { get; set; }
 	Texture2D visionMap { get; }
 

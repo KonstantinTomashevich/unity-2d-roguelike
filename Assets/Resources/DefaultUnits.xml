@@ -8,6 +8,7 @@
 		moveSpeed="1"
 		attackSpeed="1"
 		visionRange="4"
+		maximumInventoryWeight="10"
 		/>
 
 	<orc 
@@ -19,5 +20,6 @@
 		moveSpeed="1"
 		attackSpeed="1"
 		visionRange="3"
+		maximumInventoryWeight="3"
 		/>
 </unitsTypes>

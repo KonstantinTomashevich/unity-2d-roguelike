@@ -25,6 +25,9 @@ public abstract class UnitBase : IUnit
 	private float moveSpeed_;
 	private float armor_;
 
+	private float maximumInventoryWeight_;
+	private float currentInventoryWeight_;
+
 	private uint visionRange_;
 	private Texture2D visionMap_;
 	private Dictionary <Vector2, uint> lastVisionMapUpdateVisibleTiles_;
@@ -43,6 +46,9 @@ public abstract class UnitBase : IUnit
 		attackSpeed_ = STANDART_ATTACK_SPEED;
 		moveSpeed_ = STANDART_MOVE_SPEED;
 		armor_ = 0.0f;
+
+		maximumInventoryWeight_ = 0.0f;
+		currentInventoryWeight_ = 0.0f;
 
 		visionRange_ = STANDART_VISION_RANGE;
 		visionMap_ = null;
@@ -82,8 +88,9 @@ public abstract class UnitBase : IUnit
 	}
 
 	public bool AddToInventory (IItem item) {
-		if (!itemsInInventory_.Contains (item)) {
+		if (currentInventoryWeight_ + item.weight <= maximumInventoryWeight_ && !itemsInInventory_.Contains (item)) {
 			itemsInInventory_.Add (item);
+			currentInventoryWeight_ += item.weight;
 			return true;
 
 		} else {
@@ -92,7 +99,11 @@ public abstract class UnitBase : IUnit
 	}
 
 	public bool RemoveFromInventory (IItem item) {
-		return itemsInInventory_.Remove (item);
+		bool result = itemsInInventory_.Remove (item);
+		if (result) {
+			currentInventoryWeight_ -= item.weight;
+		}
+		return result;
 	}
 
 	private void ClearVisionMap () {
@@ -264,6 +275,17 @@ public abstract class UnitBase : IUnit
 		set {
 			Debug.Assert (value >= 0.0f);
 			armor_ = value;
+		}
+	}
+
+	public float maximumInventoryWeight { 
+		get {
+			return maximumInventoryWeight_;
+		}
+
+		set {
+			Debug.Assert (value >= 0.0f);
+			maximumInventoryWeight_ = value;
 		}
 	}
 
