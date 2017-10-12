@@ -103,9 +103,9 @@ public class ItemsManager : MonoBehaviour {
 		}
 	}
 
-	public IItem SpawnItemFromXml (XmlNode xml) {
+	public IItem SpawnItemFromXml (XmlNode xml, bool addItem = true) {
 		IItem item = null;
-		string itemType = xml.Attributes ["itemType"].InnerText;
+		string itemType = xml.Attributes ["type"].InnerText;
 
 		if (itemsTypesData_.ContainsKey (itemType)) {
 			item = itemsTypesData_ [itemType].CreateItem (map, unitsManager, this, xml);
@@ -113,11 +113,26 @@ public class ItemsManager : MonoBehaviour {
 			Debug.LogError ("Unknown item type: " + itemType);
 		}
 
-		if (item != null) {
+		if (item != null && addItem) {
 			AddItem (item);
 		}
 
 		return item;
+	}
+
+	public void ProcessItemsSpawner (XmlNode xml) {
+		int count = Random.Range (XmlHelper.GetIntAttribute (xml, "minCount"), XmlHelper.GetIntAttribute (xml, "maxCount"));
+		Rect spawnRect = XmlHelper.GetRectAttribute (xml, "worldRect");
+
+		for (int index = 0; index < count; index++) {
+			Vector2 spawnPosition = GetValidSpawnPosition (spawnRect);
+			IItem item = SpawnItemFromXml (xml, false);
+
+			if (item != null) {
+				item.position = spawnPosition;
+				AddItem (item);
+			}
+		}
 	}
 
 	private int IndexOfItem (int id) {
@@ -130,5 +145,19 @@ public class ItemsManager : MonoBehaviour {
 			currentIndex++;
 		}
 		return -1;
+	}
+
+	private Vector2 GetValidSpawnPosition (Rect positionRect) {
+		Vector2 position = Vector2.zero;
+		Tile tile = null;
+
+		do {
+			position.x = Mathf.Round (Random.Range (positionRect.xMin, positionRect.xMax));
+			position.y = Mathf.Round (Random.Range (positionRect.yMin, positionRect.yMax));
+			tile = map.GetTile (position);
+
+		} while (tile == null || !tile.passable);
+
+		return position;
 	}
 }
