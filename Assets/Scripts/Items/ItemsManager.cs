@@ -136,6 +136,16 @@ public class ItemsManager : MonoBehaviour {
 		}
 	}
 
+	public void UpdateItemsSpritesByVisionMap (IUnit visionMapProvider) {
+		if (visionMapProvider != null) {
+			foreach (IItem item in items_) {
+				Vector2 mapCoords = map.RealCoordsToMapCoords (item.position);
+				itemsObjects_ [item.id].SetActive (item.holder == null && 
+					visionMapProvider.visionMap.GetPixel (Mathf.RoundToInt (mapCoords.x), Mathf.RoundToInt (mapCoords.y)) == UnitBase.VISIBLE_COLOR);
+			}
+		}
+	}
+
 	private int IndexOfItem (int id) {
 		int currentIndex = 0;
 		foreach (IItem item in items_) {

@@ -272,4 +272,10 @@ public class UnitsManager : MonoBehaviour {
 		} while (GetUnitOnTile (position) != null || tile == null || !tile.passable);
 		return position;
 	}
+
+	public IUnit visionMapProvider {
+		get {
+			return visionMapProviderUnit_;
+		}
+	}
 }

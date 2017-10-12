@@ -166,5 +166,6 @@ public class NextTurnProcessor : MonoBehaviour {
 		for (int index = 0; index < itemsManager.GetItemsCount (); index++) {
 			itemsManager.GetItemByIndex (index).ProcessTurn (map, unitsManager, itemsManager);
 		}
+		itemsManager.UpdateItemsSpritesByVisionMap (unitsManager.visionMapProvider);
 	}
 }

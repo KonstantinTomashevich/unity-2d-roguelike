@@ -122,5 +122,6 @@ public class MapLoader : MonoBehaviour {
 				itemsManager.ProcessItemsSpawner (xml);
 			}
 		}
+		itemsManager.UpdateItemsSpritesByVisionMap (unitsManager.visionMapProvider);
 	}
 }
