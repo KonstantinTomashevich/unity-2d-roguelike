@@ -9,6 +9,7 @@ public interface IItem {
 
 	Vector2 position { get; set; }
 	IUnit holder { get; }
+	float weight { get; set; }
 
 	bool passable { get; set; }
 	bool destructable { get; set; }

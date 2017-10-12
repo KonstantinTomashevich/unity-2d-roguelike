@@ -6,6 +6,8 @@ using UnityEngine;
 public interface IItemTypeData {
 	string name { get; }
 	Sprite sprite { get; }
+	float defaultWeight { get; }
+
 	bool passable { get; }
 	bool destructable { get; }
 	bool pickable { get; }

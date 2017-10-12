@@ -9,6 +9,7 @@ public abstract class ItemBase : IItem {
 
 	private Vector2 position_;
 	private IUnit holder_;
+	private float weight_;
 
 	private bool passable_;
 	private bool destructable_;
@@ -21,6 +22,7 @@ public abstract class ItemBase : IItem {
 
 		position_ = Vector2.zero;
 		holder_ = null;
+		weight_ = 0.0f;
 
 		passable_ = false;
 		destructable_ = false;
@@ -30,13 +32,20 @@ public abstract class ItemBase : IItem {
 	~ItemBase () {
 	}
 
-	public abstract void ProcessTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager);
+	public virtual void ProcessTurn (Map map, UnitsManager unitsManager, ItemsManager itemsManager) {
+		if (holder_ != null) {
+			position_ = holder_.position;
+		}
+	}
+
 	public void Destruct (Map map, UnitsManager unitsManager, ItemsManager itemsManager, IUnit destructor) {
 		itemsManager.RemoveItem (id_);
 	}
 
 	public void Pick (Map map, UnitsManager unitsManager, ItemsManager itemsManager, IUnit pickuper) {
-		pickuper.AddToInventory (this);
+		if (position_ == pickuper.position && pickuper.AddToInventory (this)) {
+			holder_ = pickuper;
+		}
 	}
 
 	public void Throw (Map map, UnitsManager unitsManager, ItemsManager itemsManager, Vector2 direction) {
@@ -79,6 +88,17 @@ public abstract class ItemBase : IItem {
 	public IUnit holder { 
 		get {
 			return holder_;
+		}
+	}
+
+	public float weight {
+		get {
+			return weight_;
+		}
+
+		set {
+			Debug.Assert (value >= 0.0f);
+			weight_ = value;
 		}
 	}
 
