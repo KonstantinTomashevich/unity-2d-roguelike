@@ -52,6 +52,7 @@ public class ItemsManager : MonoBehaviour {
 
 		SpriteRenderer spriteRenderer = spriteObject.AddComponent <SpriteRenderer> ();
 		spriteRenderer.sprite = itemTypeData.sprite;
+		spriteRenderer.sortingOrder = -1;
 		spriteRenderer.drawMode = SpriteDrawMode.Sliced;
 		spriteRenderer.size = Vector2.one;
 	}
@@ -95,7 +96,7 @@ public class ItemsManager : MonoBehaviour {
 		foreach (XmlNode node in rootNode.ChildNodes) {
 			string itemTypeClass = node.Attributes ["class"].InnerText;
 
-			if (itemTypeClass == "Cargo") {
+			if (itemTypeClass == "cargo") {
 				itemsTypesData_ [node.LocalName] = new CargoItemTypeData (node, spritesPathPrefix);
 			} else {
 				Debug.LogError ("Unknown item type class: " + itemTypeClass);
