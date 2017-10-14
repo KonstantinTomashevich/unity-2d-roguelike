@@ -53,6 +53,7 @@ public abstract class UnitBase : IUnit
 		visionRange_ = STANDART_VISION_RANGE;
 		visionMap_ = null;
 		lastVisionMapUpdateVisibleTiles_ = new Dictionary <Vector2, uint> ();
+		itemsInInventory_ = new List <IItem> ();
 	}
 
 	~UnitBase () {
@@ -88,7 +89,7 @@ public abstract class UnitBase : IUnit
 	}
 
 	public bool AddToInventory (IItem item) {
-		if (currentInventoryWeight_ + item.weight <= maximumInventoryWeight_ && !itemsInInventory_.Contains (item)) {
+		if (CanAddToInventory (item)) {
 			itemsInInventory_.Add (item);
 			currentInventoryWeight_ += item.weight;
 			return true;
@@ -96,6 +97,10 @@ public abstract class UnitBase : IUnit
 		} else {
 			return false;
 		}
+	}
+
+	public bool CanAddToInventory (IItem item) {
+		return currentInventoryWeight_ + item.weight <= maximumInventoryWeight_ && !itemsInInventory_.Contains (item);
 	}
 
 	public bool RemoveFromInventory (IItem item) {

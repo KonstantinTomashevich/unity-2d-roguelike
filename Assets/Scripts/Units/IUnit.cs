@@ -28,5 +28,6 @@ public interface IUnit {
 	void UpdateVisionMap (Map map);
 
 	bool AddToInventory (IItem item);
+	bool CanAddToInventory (IItem item);
 	bool RemoveFromInventory (IItem item);
 }
