@@ -91,6 +91,18 @@ public class ItemsManager : MonoBehaviour {
 		return itemsObjects_.TryGetValue (id, out result) ? result : null;
 	}
 
+	public List <IItem> GetItemsOnTile (Vector2 tilePosition, bool includeHeld = true) {
+		List <IItem> itemsOnTile = new List <IItem> ();
+
+		foreach (IItem item in items_) {
+			if (item.position.Equals (tilePosition) && (includeHeld || item.holder == null)) {
+				itemsOnTile.Add (item);
+			}
+		}
+
+		return itemsOnTile;
+	}
+
 	public void LoadItemsTypes (XmlNode rootNode) {
 		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
 		foreach (XmlNode node in rootNode.ChildNodes) {
