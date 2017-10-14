@@ -238,7 +238,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &493986050
 GameObject:
@@ -1723,7 +1723,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 591506685}
+      - m_Target: {fileID: 0}
         m_MethodName: ExitPressed
         m_Mode: 1
         m_Arguments:
@@ -1797,7 +1797,7 @@ Transform:
   - {fileID: 784244896}
   - {fileID: 912060873}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2123959438
 GameObject:
