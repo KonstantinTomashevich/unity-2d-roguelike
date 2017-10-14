@@ -51,8 +51,10 @@ public class UnitsManager : MonoBehaviour {
 		unit.armor = unitTypeData.defaultArmor;
 		unit.regeneration = unitTypeData.defaultRegeneration;
 		unit.attackForce = unitTypeData.defaultAttackForce;
+
 		unit.moveSpeed = unitTypeData.defaultMoveSpeed;
 		unit.attackSpeed = unitTypeData.defaultAttackSpeed;
+		unit.maximumInventoryWeight = unitTypeData.defaultMaximumInventoryWeight;
 		unit.visionRange = unitTypeData.defaultVisionRange;
 
 		unit.InitVisionMap (map.width, map.height);
