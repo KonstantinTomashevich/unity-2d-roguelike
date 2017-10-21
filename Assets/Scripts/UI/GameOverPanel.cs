@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameOverPanel : MonoBehaviour {
 	public GUISkin skin;
@@ -29,6 +30,10 @@ public class GameOverPanel : MonoBehaviour {
 			GUILayout.Window (0, new Rect (hW - H / 3.0f, hH - H / 6.0f, H / 1.5f, H / 3.0f), (int id) => {
 				GUILayout.Label ("Game over!", skin.GetStyle ("title"));
 				GUILayout.FlexibleSpace ();
+
+				if (GUILayout.Button ("Restart game.")) {
+					SceneManager.LoadScene (0);
+				}
 
 				if (GUILayout.Button ("Exit from game.")) {
 					Application.Quit ();

@@ -88,15 +88,17 @@ public class NextTurnProcessor : MonoBehaviour {
 	private void ProcessCurrentActionAndStartNext () {
 		currentProcessingAction_.Commit (map, unitsManager, itemsManager);
 		IUnit unit = unitsManager.GetUnitByIndex (currentProcessingUnitIndex_);
-		if (unit.health <= 0.0f) {
+		if (unit != null) {
+			if (unit.health <= 0.0f) {
 
-			if (unitsManager.RemoveUnit (unit.id) <= currentProcessingUnitIndex_) {
-				currentProcessingUnitIndex_--;
+				if (unitsManager.RemoveUnit (unit.id) <= currentProcessingUnitIndex_) {
+					currentProcessingUnitIndex_--;
+				}
+				ProcessNextUnitTurn ();
+
+			} else {
+				SetupNextAction ();
 			}
-			ProcessNextUnitTurn ();
-
-		} else {
-			SetupNextAction ();
 		}
 	}
 
