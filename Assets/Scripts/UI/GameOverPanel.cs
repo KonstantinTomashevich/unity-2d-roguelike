@@ -4,21 +4,39 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameOverPanel : MonoBehaviour {
-	public GameObject gameOverPanelObject;
+	public GUISkin skin;
 	private IUnit playerUnit_;
 
 	void Start () {
-		gameOverPanelObject.SetActive (false);
-		foreach (Transform child in gameOverPanelObject.transform) {
-			child.gameObject.SetActive (false);
-		}
 	}
 
 	void Update () {
 	}
 
-	public void ExitPressed () {
-		Application.Quit ();
+	void OnGUI () {
+		GUI.skin = skin;
+
+		int W = Screen.width;
+		int H = Screen.height;
+		float hW = W / 2.0f;
+		float hH = H / 2.0f;
+
+		skin.label.fontSize = H / 30;
+		skin.button.fontSize = H / 23;
+		skin.GetStyle ("title").fontSize = H / 15;
+
+		if (playerUnit_ == null) {
+			GUILayout.Window (0, new Rect (hW - H / 3.0f, hH - H / 6.0f, H / 1.5f, H / 3.0f), (int id) => {
+				GUILayout.Label ("Game over!", skin.GetStyle ("title"));
+				GUILayout.FlexibleSpace ();
+
+				if (GUILayout.Button ("Exit from game.")) {
+					Application.Quit ();
+				}
+
+			}, "");
+		}
+		GUI.skin = null;
 	}
 
 	void PlayerUnitCreated (PlayerUnit unit) {
@@ -27,10 +45,7 @@ public class GameOverPanel : MonoBehaviour {
 
 	void UnitDie (IUnit unit) {
 		if (playerUnit_ == unit) {
-			gameOverPanelObject.SetActive (true);
-			foreach (Transform child in gameOverPanelObject.transform) {
-				child.gameObject.SetActive (true);
-			}
+			playerUnit_ = null;
 		}
 	}
 }
