@@ -14,12 +14,13 @@ public class GameOverPanel : MonoBehaviour {
 		}
 	}
 
-	void Update () {
-	}
-
 	public void ExitPressed () {
 		Application.Quit ();
 	}
+
+    public void RestartPressed() {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+    }
 
 	void PlayerUnitCreated (PlayerUnit unit) {
 		playerUnit_ = unit;
