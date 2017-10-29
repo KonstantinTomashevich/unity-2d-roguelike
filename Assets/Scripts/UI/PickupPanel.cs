@@ -4,10 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class PickupPanel : MonoBehaviour {
-	public GameObject pickupPanelObject;
-	public Image itemImage;
-	public Text itemText;
-
+	public GUISkin skin;
 	public Map map;
 	public UnitsManager unitsManager;
 	public ItemsManager itemsManager;
@@ -16,51 +13,62 @@ public class PickupPanel : MonoBehaviour {
 	private bool isProcessingTurn_;
 
 	void Start () {
-		SetPanelEnabled (false);
+		
 	}
 
 	void Update () {
 		
 	}
 
-	public void OnPickupPressed () {
-		IItem firstPickable = GetFirstPickableItem ();
-		if (PickupAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, firstPickable)) {
-			MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new PickupAction (playerUnit_, firstPickable));
+	void OnGUI () {
+		GUI.skin = skin;
+
+		int W = Screen.width;
+		int H = Screen.height;
+		float hW = W / 2.0f;
+
+		skin.label.fontSize = H / 30;
+		skin.button.fontSize = H / 23;
+		skin.GetStyle ("title").fontSize = H / 15;
+
+		if (playerUnit_ != null && !isProcessingTurn_) {
+			IItem item = GetFirstPickableItem ();
+
+			if (item != null) {
+				GUILayout.Window (0, new Rect (hW - H / 2.0f, H - H / 4.0f, H, H / 4.0f), (int id) => {
+					GUILayout.BeginHorizontal ();
+					GUI.DrawTexture (new Rect (5, 5, H / 4.0f - 10, H / 4.0f - 10), 
+						itemsManager.GetItemObject (item).GetComponent <SpriteRenderer> ().sprite.texture);
+					GUILayout.Space (H / 4.0f);
+
+					GUILayout.BeginVertical ();
+					GUILayout.Label ("There is a " + item.itemType + ".");
+					if (GUILayout.Button ("Pickup")) {
+						
+						if (PickupAction.StaticValidation (map, unitsManager, itemsManager, playerUnit_, item)) {
+							MessageUtils.SendMessageToObjectsWithTag (tag, "ImmediateActionRequest", new PickupAction (playerUnit_, item));
+						}
+					}
+
+					GUILayout.EndVertical ();
+					GUILayout.EndHorizontal ();
+		
+				}, "");
+			}
 		}
+		GUI.skin = null;
 	}
 
 	void NextTurnRequest () {
 		isProcessingTurn_ = true;
-		SetPanelEnabled (false);
 	}
 
 	void TurnFinished () {
 		isProcessingTurn_ = false;
-		UpdatePanel ();
 	}
 
 	void PlayerUnitCreated (PlayerUnit unit) {
 		playerUnit_ = unit;
-		UpdatePanel ();
-	}
-
-	void AllAnimationsFinished () {
-		UpdatePanel ();
-	}
-
-	private void UpdatePanel () {
-		if (playerUnit_ != null && !isProcessingTurn_) {
-			IItem firstPickable = GetFirstPickableItem ();
-
-			if (firstPickable != null) {
-				SetPanelEnabled (true);
-				InitForItem (firstPickable);
-
-			} else {
-				SetPanelEnabled (false);
-			}
-		}
 	}
 
 	private IItem GetFirstPickableItem () {
@@ -75,17 +83,5 @@ public class PickupPanel : MonoBehaviour {
 		}
 
 		return firstPickable;
-	}
-
-	private void InitForItem (IItem item) {
-		itemImage.sprite = itemsManager.GetItemObject (item).GetComponent <SpriteRenderer> ().sprite;
-		itemText.text = "There is a " + item.itemType + ".";
-	}
-
-	private void SetPanelEnabled (bool enabled) {
-		pickupPanelObject.SetActive (enabled);
-		foreach (Transform child in pickupPanelObject.transform) {
-			child.gameObject.SetActive (enabled);
-		}
 	}
 }
