@@ -35,7 +35,7 @@ public class PickupPanel : MonoBehaviour {
 			IItem item = GetFirstPickableItem ();
 
 			if (item != null) {
-				GUILayout.Window (0, new Rect (hW - H / 2.0f, H - H / 4.0f, H, H / 4.0f), (int id) => {
+				GUILayout.Window (1, new Rect (hW - H / 2.0f, H - H / 4.0f, H, H / 4.0f), (int id) => {
 					GUILayout.BeginHorizontal ();
 					GUI.DrawTexture (new Rect (5, 5, H / 4.0f - 10, H / 4.0f - 10), 
 						itemsManager.GetItemObject (item).GetComponent <SpriteRenderer> ().sprite.texture);
