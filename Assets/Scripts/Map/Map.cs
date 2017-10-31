@@ -73,7 +73,8 @@ public class Map : MonoBehaviour {
 				foreach  (Vector2 neighbor in neighbors ) {
 					Tile tile = GetTile (neighbor);
 					if (tile != null && (tile.passable || (findPathToAttack && neighbor.Equals (endPosition))) &&
-						(unitsManager.GetUnitOnTile (neighbor) == null || (findPathToAttack && neighbor.Equals (endPosition))) &&
+						(unitsManager.GetUnitOnTile (neighbor) == null  && itemsManager.IsTilePassable (neighbor) 
+							|| (findPathToAttack && neighbor.Equals (endPosition))) &&
 					    (!costSoFar.ContainsKey (neighbor) || costSoFar [neighbor] > costToThisTile + 1)) {
 
 						uint heuristicDistance = (uint) Mathf.RoundToInt (1000.0f * HeuristicDistance (neighbor, endPosition));

@@ -103,6 +103,15 @@ public class ItemsManager : MonoBehaviour {
 		return itemsOnTile;
 	}
 
+	public bool IsTilePassable (Vector2 tilePosition) {
+		foreach (IItem item in items_) {
+			if (item.position.Equals (tilePosition) && item.holder == null && !item.passable) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void LoadItemsTypes (XmlNode rootNode) {
 		string spritesPathPrefix = rootNode.Attributes ["spritesPrefix"].InnerText;
 		foreach (XmlNode node in rootNode.ChildNodes) {
