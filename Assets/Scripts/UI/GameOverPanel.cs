@@ -29,7 +29,6 @@ public class GameOverPanel : MonoBehaviour {
 		if (playerUnit_ == null) {
 			GUILayout.Window (0, new Rect (hW - H / 3.0f, hH - H / 6.0f, H / 1.5f, H / 3.0f), (int id) => {
 				GUILayout.Label ("Game over!", skin.GetStyle ("title"));
-				GUILayout.FlexibleSpace ();
 
 				if (GUILayout.Button ("Restart game.")) {
 					SceneManager.LoadScene (0);
