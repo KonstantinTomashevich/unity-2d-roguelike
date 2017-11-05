@@ -30,4 +30,9 @@ public interface IUnit {
 	bool AddToInventory (IItem item);
 	bool CanAddToInventory (IItem item);
 	bool RemoveFromInventory (IItem item);
+
+	int GetItemsInInventoryCount ();
+	IItem GetItemFromInventoryByIndex (int index);
+	int GetCountOfItemsInInventoryWithType (string itemType);
+	List <IItem> GetItemsInInventory ();
 }

@@ -111,6 +111,32 @@ public abstract class UnitBase : IUnit
 		return result;
 	}
 
+	public int GetItemsInInventoryCount () {
+		return itemsInInventory_.Count;
+	}
+
+	public IItem GetItemFromInventoryByIndex (int index) {
+		if (index >= 0 && index < itemsInInventory_.Count) {
+			return itemsInInventory_ [index];
+		} else {
+			return null;
+		}
+	}
+
+	public int GetCountOfItemsInInventoryWithType (string itemType) {
+		int count = 0;
+		foreach (IItem item in itemsInInventory_) {
+			if (item.itemType == itemType) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public List <IItem> GetItemsInInventory () {
+		return new List <IItem> (itemsInInventory_);
+	}
+
 	private void ClearVisionMap () {
 		for (int x = 0; x < visionMap_.width; x++) {
 			for (int y = 0; y < visionMap_.height; y++) {
