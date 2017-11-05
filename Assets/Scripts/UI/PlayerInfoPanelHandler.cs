@@ -26,12 +26,13 @@ public class PlayerInfoPanelHandler : MonoBehaviour {
 
 		skin.label.fontSize = H / 30;
 		skin.button.fontSize = H / 23;
+		skin.window.fontSize = H / 23;
 		skin.GetStyle ("healthSliderButton").fontSize = H / 23;
 		skin.GetStyle ("title").fontSize = H / 15;
 
 		if (playerUnit_ != null) {
 
-			GUILayout.Window (0, new Rect (0, 0, H / 2.0f, H / 4.0f), (int id) => {
+			GUILayout.Window (0, new Rect (0, 0, H / 2.0f, H / 3.0f), (int id) => {
 				// HP info
 				GUILayout.Button ("HP: " + RoundWithPrecision (playerUnit_.health) + "/" + UnitBase.STANDART_UNIT_MAX_HEALTH,
 					skin.GetStyle ("healthSliderButton"), GUILayout.Width ((H / 2.0f - 20) * playerUnit_.health / UnitBase.STANDART_UNIT_MAX_HEALTH));
@@ -56,7 +57,7 @@ public class PlayerInfoPanelHandler : MonoBehaviour {
 				GUILayout.Label (RoundWithPrecision (playerUnit_.armor) + ", " + 
 					RoundWithPrecision (1.0f / playerUnit_.moveSpeed) + " moves per turn");
 				GUILayout.EndHorizontal ();
-			}, "");
+			}, "Player Info");
 		}
 		GUI.skin = null;
 	}
@@ -67,5 +68,11 @@ public class PlayerInfoPanelHandler : MonoBehaviour {
 
 	private float RoundWithPrecision (float value) {
 		return Mathf.Round (value / floorPrecision) * floorPrecision;
+	}
+
+	void UnitDie (IUnit unit) {
+		if (playerUnit_ == unit) {
+			playerUnit_ = null;
+		}
 	}
 }
