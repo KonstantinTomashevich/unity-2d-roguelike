@@ -49,6 +49,7 @@ public abstract class ItemBase : IItem {
 	}
 
 	public void Throw (Map map, UnitsManager unitsManager, ItemsManager itemsManager, Vector2 direction) {
+		holder_.RemoveFromInventory (this);
 		holder_ = null;
 	}
 
